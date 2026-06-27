@@ -8,20 +8,17 @@ const registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // Basic validation
     if (!name || !email || !password) {
       res.status(400);
       throw new Error("Name, email, and password are required");
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400);
       throw new Error("User with this email already exists");
     }
 
-    // Create new user (password hashed automatically by pre-save hook)
     const user = await User.create({
       name,
       email,
@@ -29,7 +26,6 @@ const registerUser = async (req, res, next) => {
       role: role || "student",
     });
 
-    // Generate token
     const token = generateToken(user._id, user.role);
 
     res.status(201).json({
@@ -47,4 +43,49 @@ const registerUser = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser };
+// @desc    Login an existing user
+// @route   POST /api/auth/login
+// @access  Public
+const loginUser = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400);
+      throw new Error("Email and password are required");
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    // Generic error message - do not reveal whether email exists
+    if (!user) {
+      res.status(401);
+      throw new Error("Invalid email or password");
+    }
+
+    // Compare entered password with stored hash
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      res.status(401);
+      throw new Error("Invalid email or password");
+    }
+
+    const token = generateToken(user._id, user.role);
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser };
