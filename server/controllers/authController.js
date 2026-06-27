@@ -88,4 +88,16 @@ const loginUser = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+const getProfile = async (req, res, next) => {
+  try {
+    // req.user is already attached by the protect middleware
+    res.status(200).json({
+      success: true,
+      user: req.user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, getProfile };
