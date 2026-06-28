@@ -5,17 +5,14 @@ const User = require("../models/User");
 const protect = async (req, res, next) => {
   let token;
 
-  // Token is expected in the format: "Bearer <token>"
   const authHeader = req.headers.authorization;
 
   if (authHeader && authHeader.startsWith("Bearer")) {
     try {
       token = authHeader.split(" ")[1];
 
-      // Verify token signature and expiry
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Attach user to request, excluding password
       req.user = await User.findById(decoded.id).select("-password");
 
       if (!req.user) {
@@ -36,4 +33,24 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+// Middleware to restrict access based on user role
+// Usage: authorize("admin") or authorize("admin", "faculty")
+const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      res.status(401);
+      return next(new Error("Not authorized, no user found on request"));
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      res.status(403);
+      return next(
+        new Error(`Access denied. Role '${req.user.role}' is not permitted to access this resource`)
+      );
+    }
+
+    next();
+  };
+};
+
+module.exports = { protect, authorize };

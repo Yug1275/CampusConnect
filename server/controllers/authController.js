@@ -100,4 +100,15 @@ const getProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getProfile };
+const adminOnlyTest = async (req, res, next) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: `Welcome, admin ${req.user.name}. You have access to this resource.`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, getProfile, adminOnlyTest };
