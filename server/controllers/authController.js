@@ -1,5 +1,7 @@
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const generateOtp = require("../utils/generateOtp");
+const sendEmail = require("../utils/sendEmail");
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -111,4 +113,41 @@ const adminOnlyTest = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getProfile, adminOnlyTest };
+const forgotPassword = async (req,res,next) => {
+  try{
+    const { email } = req.body;
+
+    if(!email){
+      res.status(400);
+      throw new Error("Email is required");
+    }
+
+    const user = await User.findOne({email});
+
+    // Always respond the same way, whether or not the email exists,
+    // to avoid revealing which emails are registered
+
+    if(!user){
+      return res.status(200).json({
+        success:true,
+        message: "If this email is registeres, an OTP has been sent",
+      });
+    }
+
+    const otp = generateOtp();
+    user.resetOtp = otp;
+    user.resetOtpExpiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+    await user.save();
+
+    // send OTP via email
+    await sendEmail({
+      to: user.email,
+      subject: "CampusConnect - Password Reset OTP",
+      text: `Your OTP for password reset is ${otp}. It is valid for 10 minutes. If you did not request this, please ignore this email.`
+    });
+  }catch(error){
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, getProfile, adminOnlyTest, forgotPassword, };
