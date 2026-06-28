@@ -1,7 +1,10 @@
+const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const generateOtp = require("../utils/generateOtp");
 const sendEmail = require("../utils/sendEmail");
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -201,6 +204,69 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+const googleLogin = async (req, res, next) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      res.status(400);
+      throw new Error("Google ID token is required");
+    }
+
+    // Verify the token with Google
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId } = payload;
+
+    if (!email) {
+      res.status(400);
+      throw new Error("Google account has no email associated");
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Link googleId if not already linked
+      if (!user.googleId) {
+        user.googleId = googleId;
+        await user.save();
+      }
+    } else {
+      // Create a new user with a random unusable password
+      const randomPassword = generateOtp() + generateOtp(); // 12-digit random string
+
+      user = await User.create({
+        name: name || email.split("@")[0],
+        email,
+        password: randomPassword,
+        role: "student", // default role for self-registered Google users
+        googleId,
+      });
+    }
+
+    const token = generateToken(user._id, user.role);
+
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(401);
+    next(new Error("Google authentication failed. Please try again"));
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -208,4 +274,5 @@ module.exports = {
   adminOnlyTest,
   forgotPassword,
   resetPassword,
+  googleLogin,
 };

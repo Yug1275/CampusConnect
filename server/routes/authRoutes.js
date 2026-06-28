@@ -7,6 +7,7 @@ const {
   adminOnlyTest,
   forgotPassword,
   resetPassword,
+  googleLogin,
 } = require("../controllers/authController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 
@@ -16,5 +17,6 @@ router.get("/profile", protect, getProfile);
 router.get("/admin-only", protect, authorize("admin"), adminOnlyTest);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password", resetPassword);
+router.post("/google", googleLogin);
 
 module.exports = router;
