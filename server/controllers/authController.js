@@ -150,4 +150,62 @@ const forgotPassword = async (req,res,next) => {
   }
 };
 
-module.exports = { registerUser, loginUser, getProfile, adminOnlyTest, forgotPassword, };
+const resetPassword = async (req, res, next) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    if (!email || !otp || !newPassword) {
+      res.status(400);
+      throw new Error("Email, OTP, and new password are required");
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400);
+      throw new Error("New password must be at least 6 characters");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      res.status(400);
+      throw new Error("Invalid email or OTP");
+    }
+
+    // Check OTP exists and matches
+    if (!user.resetOtp || user.resetOtp !== otp) {
+      res.status(400);
+      throw new Error("Invalid email or OTP");
+    }
+
+    // Check OTP has not expired
+    if (!user.resetOtpExpiry || user.resetOtpExpiry < Date.now()) {
+      res.status(400);
+      throw new Error("OTP has expired. Please request a new one");
+    }
+
+    // Update password (re-hashed automatically by pre-save hook)
+    user.password = newPassword;
+
+    // Clear OTP fields so they cannot be reused
+    user.resetOtp = null;
+    user.resetOtpExpiry = null;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password has been reset successfully. You can now log in.",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getProfile,
+  adminOnlyTest,
+  forgotPassword,
+  resetPassword,
+};
