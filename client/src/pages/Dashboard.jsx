@@ -1,22 +1,18 @@
 import { useAuth } from "../context/AuthContext";
+import MainLayout from "../components/layout/MainLayout";
 
 function Dashboard() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
 
   return (
-    <div className="container mt-5">
-      <div className="d-flex justify-content-between align-items-center">
-        <h2>Welcome, {user?.name}</h2>
-        <button className="btn btn-outline-danger" onClick={logout}>
-          Logout
-        </button>
-      </div>
+    <MainLayout>
+      <h2>Welcome, {user?.name}</h2>
       <p className="text-muted">Role: {user?.role}</p>
       <p>
-        This is a placeholder dashboard. Full role-specific dashboards will be
-        built in Phase 3.
+        This is a placeholder dashboard. Role-specific dashboards will be built
+        in the next tasks of this phase.
       </p>
-    </div>
+    </MainLayout>
   );
 }
 
