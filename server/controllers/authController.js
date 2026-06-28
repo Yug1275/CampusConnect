@@ -18,6 +18,15 @@ const registerUser = async (req, res, next) => {
       throw new Error("Name, email, and password are required");
     }
 
+    // Password strength validation
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      res.status(400);
+      throw new Error(
+        "Password must be at least 8 characters and include 1 uppercase letter, 1 digit, and 1 special character"
+      );
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       res.status(400);
@@ -116,39 +125,45 @@ const adminOnlyTest = async (req, res, next) => {
   }
 };
 
-const forgotPassword = async (req,res,next) => {
-  try{
+const forgotPassword = async (req, res, next) => {
+  try {
     const { email } = req.body;
 
-    if(!email){
+    if (!email) {
       res.status(400);
       throw new Error("Email is required");
     }
 
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email });
 
-    // Always respond the same way, whether or not the email exists,
-    // to avoid revealing which emails are registered
-
-    if(!user){
+    if (!user) {
       return res.status(200).json({
-        success:true,
-        message: "If this email is registeres, an OTP has been sent",
+        success: true,
+        message: "If this email is registered, an OTP has been sent",
       });
     }
 
+    // Generate OTP and set 10-minute expiry
     const otp = generateOtp();
     user.resetOtp = otp;
-    user.resetOtpExpiry = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+    user.resetOtpExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    // send OTP via email
-    await sendEmail({
+    // Respond to the client immediately - do NOT make them wait for email sending
+    res.status(200).json({
+      success: true,
+      message: "OTP sent successfully to your email",
+    });
+
+    // Send the email AFTER responding (fire-and-forget, errors logged only)
+    sendEmail({
       to: user.email,
       subject: "CampusConnect - Password Reset OTP",
-      text: `Your OTP for password reset is ${otp}. It is valid for 10 minutes. If you did not request this, please ignore this email.`
+      text: `Your OTP for password reset is ${otp}. It is valid for 10 minutes. If you did not request this, please ignore this email.`,
+    }).catch((emailError) => {
+      console.error("Failed to send OTP email:", emailError.message);
     });
-  }catch(error){
+  } catch (error) {
     next(error);
   }
 };
