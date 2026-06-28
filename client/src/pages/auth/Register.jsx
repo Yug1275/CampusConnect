@@ -3,6 +3,14 @@ import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
 import PasswordField, { isPasswordValid } from "../../components/PasswordField";
+import AuthLayout from "../../components/layout/AuthLayout";
+import {
+  inputStyle,
+  labelStyle,
+  primaryButtonStyle,
+  linkStyle,
+  alertErrorStyle,
+} from "../../styles/authStyles";
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -38,29 +46,38 @@ function Register() {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2 className="mb-4">Register</h2>
-
-      {error && <div className="alert alert-danger">{error}</div>}
+    <AuthLayout title="Create your account" subtitle="Join CampusConnect to get started">
+      {error && (
+        <div className="px-3 py-2 mb-3" style={alertErrorStyle}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">Full Name</label>
+          <label style={labelStyle} className="form-label d-block">
+            Full Name
+          </label>
           <input
             type="text"
             name="name"
             className="form-control"
+            style={inputStyle}
             value={formData.name}
             onChange={handleChange}
             required
           />
         </div>
+
         <div className="mb-3">
-          <label className="form-label">Email</label>
+          <label style={labelStyle} className="form-label d-block">
+            Email
+          </label>
           <input
             type="email"
             name="email"
             className="form-control"
+            style={inputStyle}
             value={formData.email}
             onChange={handleChange}
             required
@@ -74,11 +91,14 @@ function Register() {
           onChange={handleChange}
         />
 
-        <div className="mb-3">
-          <label className="form-label">Role</label>
+        <div className="mb-4">
+          <label style={labelStyle} className="form-label d-block">
+            Role
+          </label>
           <select
             name="role"
             className="form-select"
+            style={inputStyle}
             value={formData.role}
             onChange={handleChange}
           >
@@ -89,17 +109,24 @@ function Register() {
 
         <button
           type="submit"
-          className="btn btn-primary w-100 mb-3"
+          className="btn w-100 text-white mb-3"
+          style={{
+            ...primaryButtonStyle,
+            opacity: isPasswordValid(formData.password) ? 1 : 0.6,
+          }}
           disabled={!isPasswordValid(formData.password)}
         >
           Register
         </button>
       </form>
 
-      <p className="text-center">
-        Already have an account? <Link to="/login">Login</Link>
+      <p className="text-center mb-0" style={{ color: "#64748b", fontSize: "0.9rem" }}>
+        Already have an account?{" "}
+        <Link to="/login" style={linkStyle}>
+          Login
+        </Link>
       </p>
-    </div>
+    </AuthLayout>
   );
 }
 

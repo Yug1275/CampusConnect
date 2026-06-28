@@ -3,6 +3,15 @@ import { useNavigate, useLocation, Link } from "react-router-dom";
 import { resetPasswordRequest } from "../../services/authService";
 import OtpInput from "../../components/OtpInput";
 import PasswordField, { isPasswordValid } from "../../components/PasswordField";
+import AuthLayout from "../../components/layout/AuthLayout";
+import {
+  inputStyle,
+  labelStyle,
+  primaryButtonStyle,
+  linkStyle,
+  alertSuccessStyle,
+  alertErrorStyle,
+} from "../../styles/authStyles";
 
 function ResetPassword() {
   const location = useLocation();
@@ -51,19 +60,31 @@ function ResetPassword() {
   };
 
   return (
-    <div className="container mt-5" style={{ maxWidth: "400px" }}>
-      <h2 className="mb-4">Reset Password</h2>
-
-      {message && <div className="alert alert-success">{message}</div>}
-      {error && <div className="alert alert-danger">{error}</div>}
+    <AuthLayout title="Reset Password" subtitle="Enter the OTP sent to your email">
+      {message && (
+        <div className="px-3 py-2 mb-3" style={alertSuccessStyle}>
+          {message}
+        </div>
+      )}
+      {error && (
+        <div className="px-3 py-2 mb-3" style={alertErrorStyle}>
+          {error}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">Email</label>
+          <label style={labelStyle} className="form-label d-block">
+            Email
+          </label>
           <input
             type="email"
             name="email"
             className="form-control"
+            style={{
+              ...inputStyle,
+              backgroundColor: emailFromState ? "#f1f5f9" : "#fff",
+            }}
             value={formData.email}
             onChange={handleChange}
             readOnly={!!emailFromState}
@@ -72,7 +93,9 @@ function ResetPassword() {
         </div>
 
         <div className="mb-3">
-          <label className="form-label">Enter OTP</label>
+          <label style={labelStyle} className="form-label d-block">
+            Enter OTP
+          </label>
           <OtpInput value={formData.otp} onChange={handleOtpChange} />
         </div>
 
@@ -85,17 +108,23 @@ function ResetPassword() {
 
         <button
           type="submit"
-          className="btn btn-primary w-100 mb-3"
+          className="btn w-100 text-white mb-3"
+          style={{
+            ...primaryButtonStyle,
+            opacity: isPasswordValid(formData.newPassword) ? 1 : 0.6,
+          }}
           disabled={!isPasswordValid(formData.newPassword)}
         >
           Reset Password
         </button>
       </form>
 
-      <p className="text-center">
-        <Link to="/login">Back to Login</Link>
+      <p className="text-center mb-0">
+        <Link to="/login" style={linkStyle}>
+          Back to Login
+        </Link>
       </p>
-    </div>
+    </AuthLayout>
   );
 }
 
