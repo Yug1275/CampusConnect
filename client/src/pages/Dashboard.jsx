@@ -6,12 +6,29 @@ function Dashboard() {
 
   return (
     <MainLayout>
-      <h2>Welcome, {user?.name}</h2>
-      <p className="text-muted">Role: {user?.role}</p>
-      <p>
-        This is a placeholder dashboard. Role-specific dashboards will be built
-        in the next tasks of this phase.
-      </p>
+      <div className="mb-4">
+        <h2 style={{ fontWeight: 700, color: "#1e293b" }}>
+          Welcome back, {user?.name?.split(" ")[0]}
+        </h2>
+        <p style={{ color: "#64748b" }}>
+          Here's what's happening with your account today.
+        </p>
+      </div>
+
+      <div
+        className="p-4"
+        style={{
+          backgroundColor: "#ffffff",
+          borderRadius: "12px",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        }}
+      >
+        <p className="mb-0" style={{ color: "#475569" }}>
+          This is a placeholder dashboard. Role-specific dashboards with
+          stats and widgets will be built in the next tasks of this phase.
+        </p>
+      </div>
     </MainLayout>
   );
 }

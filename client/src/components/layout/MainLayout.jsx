@@ -4,12 +4,15 @@ import Footer from "./Footer";
 
 function MainLayout({ children }) {
   return (
-    <div className="d-flex flex-column" style={{ minHeight: "100vh" }}>
+    <div
+      className="d-flex flex-column"
+      style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}
+    >
       <Navbar />
 
       <div className="d-flex flex-grow-1">
         <Sidebar />
-        <div className="flex-grow-1 p-4">{children}</div>
+        <main className="flex-grow-1 p-4 p-md-5">{children}</main>
       </div>
 
       <Footer />
