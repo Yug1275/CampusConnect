@@ -8,6 +8,7 @@ const requestLogger = require("./middleware/requestLogger");
 const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const departmentRoutes = require("./routes/departmentRoutes");
 
 connectDB();
 
@@ -17,7 +18,6 @@ app.use(express.json());
 app.use(cors());
 app.use(requestLogger);
 
-// Serve uploaded files statically (e.g. /uploads/<filename> becomes accessible via URL)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.get("/api/health", (req, res) => {
@@ -30,6 +30,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/departments", departmentRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
