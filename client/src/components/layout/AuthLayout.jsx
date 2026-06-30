@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+import { FiArrowLeft } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 
@@ -6,8 +8,31 @@ function AuthLayout({ title, subtitle, children }) {
   const colors = themeColors[theme];
 
   return (
-    <div className="d-flex" style={{ minHeight: "100vh", backgroundColor: colors.pageBg }}>
-      {/* Left branding panel - always dark, regardless of site theme (brand identity) */}
+    <div className="d-flex position-relative" style={{ minHeight: "100vh", backgroundColor: colors.pageBg }}>
+      {/* Back to home button */}
+      <Link
+        to="/"
+        className="d-flex align-items-center justify-content-center position-absolute"
+        style={{
+          top: "24px",
+          left: "24px",
+          width: "40px",
+          height: "40px",
+          borderRadius: "50%",
+          backgroundColor: colors.cardBg,
+          border: `1px solid ${colors.border}`,
+          color: colors.textPrimary,
+          zIndex: 10,
+          transition: "transform 0.2s ease",
+        }}
+        title="Back to Home"
+        onMouseEnter={(e) => (e.currentTarget.style.transform = "translateX(-3px)")}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = "translateX(0)")}
+      >
+        <FiArrowLeft size={18} />
+      </Link>
+
+      {/* Left branding panel - always dark, regardless of site theme */}
       <div
         className="d-none d-lg-flex flex-column justify-content-between p-5"
         style={{
@@ -51,7 +76,7 @@ function AuthLayout({ title, subtitle, children }) {
           </div>
 
           <div
-            className="p-4 p-md-5"
+            className="p-4 p-md-5 fade-in-up"
             style={{
               backgroundColor: colors.cardBg,
               borderRadius: "16px",

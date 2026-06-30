@@ -2,9 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 
-// Bootstrap global styles
 import "bootstrap/dist/css/bootstrap.min.css";
-
+import "./styles/animations.css";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
