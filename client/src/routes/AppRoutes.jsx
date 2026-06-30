@@ -4,7 +4,7 @@ import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
-import Dashboard from "../pages/Dashboard";
+import DashboardRouter from "../pages/DashboardRouter";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -19,7 +19,7 @@ function AppRoutes() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <DashboardRouter />
           </ProtectedRoute>
         }
       />
