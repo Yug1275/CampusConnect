@@ -6,7 +6,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load persisted session on first app load
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
@@ -17,11 +16,20 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
-  // Called after successful login/register/google login
   const loginContext = (userData, token) => {
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
     setUser(userData);
+  };
+
+  // Merges partial updates (e.g. after profile edit) into the existing
+  // user object, keeping localStorage and state in sync without re-login
+  const updateUserInContext = (updatedFields) => {
+    setUser((prevUser) => {
+      const newUser = { ...prevUser, ...updatedFields };
+      localStorage.setItem("user", JSON.stringify(newUser));
+      return newUser;
+    });
   };
 
   const logout = () => {
@@ -31,11 +39,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginContext, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginContext, updateUserInContext, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook for easy access to auth context
 export const useAuth = () => useContext(AuthContext);

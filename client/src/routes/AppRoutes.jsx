@@ -5,6 +5,7 @@ import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import DashboardRouter from "../pages/DashboardRouter";
+import Profile from "../pages/Profile";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -20,6 +21,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <DashboardRouter />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
