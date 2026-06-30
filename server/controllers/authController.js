@@ -3,8 +3,8 @@ const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
 const generateOtp = require("../utils/generateOtp");
 const sendEmail = require("../utils/sendEmail");
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // @desc    Register a new user
 // @route   POST /api/auth/register
@@ -16,15 +16,6 @@ const registerUser = async (req, res, next) => {
     if (!name || !email || !password) {
       res.status(400);
       throw new Error("Name, email, and password are required");
-    }
-
-    // Password strength validation
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$/;
-    if (!passwordRegex.test(password)) {
-      res.status(400);
-      throw new Error(
-        "Password must be at least 8 characters and include 1 uppercase letter, 1 digit, and 1 special character"
-      );
     }
 
     const existingUser = await User.findOne({ email });
@@ -69,16 +60,13 @@ const loginUser = async (req, res, next) => {
       throw new Error("Email and password are required");
     }
 
-    // Find user by email
     const user = await User.findOne({ email });
 
-    // Generic error message - do not reveal whether email exists
     if (!user) {
       res.status(401);
       throw new Error("Invalid email or password");
     }
 
-    // Compare entered password with stored hash
     const isMatch = await user.matchPassword(password);
     if (!isMatch) {
       res.status(401);
@@ -102,29 +90,9 @@ const loginUser = async (req, res, next) => {
   }
 };
 
-const getProfile = async (req, res, next) => {
-  try {
-    // req.user is already attached by the protect middleware
-    res.status(200).json({
-      success: true,
-      user: req.user,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const adminOnlyTest = async (req, res, next) => {
-  try {
-    res.status(200).json({
-      success: true,
-      message: `Welcome, admin ${req.user.name}. You have access to this resource.`,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
+// @desc    Send OTP to user's email for password reset
+// @route   POST /api/auth/forgot-password
+// @access  Public
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -143,19 +111,16 @@ const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Generate OTP and set 10-minute expiry
     const otp = generateOtp();
     user.resetOtp = otp;
     user.resetOtpExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
 
-    // Respond to the client immediately - do NOT make them wait for email sending
     res.status(200).json({
       success: true,
       message: "OTP sent successfully to your email",
     });
 
-    // Send the email AFTER responding (fire-and-forget, errors logged only)
     sendEmail({
       to: user.email,
       subject: "CampusConnect - Password Reset OTP",
@@ -168,6 +133,9 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
+// @desc    Reset password using OTP
+// @route   POST /api/auth/reset-password
+// @access  Public
 const resetPassword = async (req, res, next) => {
   try {
     const { email, otp, newPassword } = req.body;
@@ -189,22 +157,17 @@ const resetPassword = async (req, res, next) => {
       throw new Error("Invalid email or OTP");
     }
 
-    // Check OTP exists and matches
     if (!user.resetOtp || user.resetOtp !== otp) {
       res.status(400);
       throw new Error("Invalid email or OTP");
     }
 
-    // Check OTP has not expired
     if (!user.resetOtpExpiry || user.resetOtpExpiry < Date.now()) {
       res.status(400);
       throw new Error("OTP has expired. Please request a new one");
     }
 
-    // Update password (re-hashed automatically by pre-save hook)
     user.password = newPassword;
-
-    // Clear OTP fields so they cannot be reused
     user.resetOtp = null;
     user.resetOtpExpiry = null;
 
@@ -219,6 +182,9 @@ const resetPassword = async (req, res, next) => {
   }
 };
 
+// @desc    Login or register a user using Google OAuth
+// @route   POST /api/auth/google
+// @access  Public
 const googleLogin = async (req, res, next) => {
   try {
     const { idToken } = req.body;
@@ -228,7 +194,6 @@ const googleLogin = async (req, res, next) => {
       throw new Error("Google ID token is required");
     }
 
-    // Verify the token with Google
     const ticket = await googleClient.verifyIdToken({
       idToken,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -242,24 +207,21 @@ const googleLogin = async (req, res, next) => {
       throw new Error("Google account has no email associated");
     }
 
-    // Check if user already exists
     let user = await User.findOne({ email });
 
     if (user) {
-      // Link googleId if not already linked
       if (!user.googleId) {
         user.googleId = googleId;
         await user.save();
       }
     } else {
-      // Create a new user with a random unusable password
-      const randomPassword = generateOtp() + generateOtp(); // 12-digit random string
+      const randomPassword = generateOtp() + generateOtp();
 
       user = await User.create({
         name: name || email.split("@")[0],
         email,
         password: randomPassword,
-        role: "student", // default role for self-registered Google users
+        role: "student",
         googleId,
       });
     }
@@ -285,8 +247,6 @@ const googleLogin = async (req, res, next) => {
 module.exports = {
   registerUser,
   loginUser,
-  getProfile,
-  adminOnlyTest,
   forgotPassword,
   resetPassword,
   googleLogin,

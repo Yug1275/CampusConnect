@@ -12,5 +12,3 @@ export const forgotPasswordRequest = (email) =>
 
 export const resetPasswordRequest = (data) =>
   api.post("/auth/reset-password", data);
-
-export const getProfile = () => api.get("/auth/profile");
