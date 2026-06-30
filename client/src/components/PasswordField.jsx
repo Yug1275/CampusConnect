@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect } from "react";
+import { useTheme } from "../context/ThemeContext";
+import { themeColors } from "../styles/themeColors";
 
 function PasswordField({
   label = "Password",
@@ -10,8 +12,9 @@ function PasswordField({
   const [showPassword, setShowPassword] = useState(false);
   const [showPopover, setShowPopover] = useState(false);
   const containerRef = useRef(null);
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
 
-  // Password rule checks
   const checks = {
     minLength: value.length >= 8,
     hasUppercase: /[A-Z]/.test(value),
@@ -19,7 +22,6 @@ function PasswordField({
     hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(value),
   };
 
-  // Close popover only when clicking truly outside the container
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -54,13 +56,23 @@ function PasswordField({
 
   return (
     <div className="mb-3 position-relative" ref={containerRef}>
-      <label className="form-label">{label}</label>
+      <label className="form-label" style={{ color: colors.textSecondary, fontSize: "0.85rem", fontWeight: 600 }}>
+        {label}
+      </label>
 
       <div className="position-relative">
         <input
           type={showPassword ? "text" : "password"}
           name={name}
           className="form-control pe-5"
+          style={{
+            backgroundColor: colors.inputBg,
+            borderColor: colors.inputBorder,
+            color: colors.textPrimary,
+            borderRadius: "8px",
+            padding: "10px 14px",
+            fontSize: "0.92rem",
+          }}
           value={value}
           onChange={onChange}
           onFocus={() => setShowPopover(true)}
@@ -68,7 +80,6 @@ function PasswordField({
           required
         />
 
-        {/* Eye toggle button */}
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
@@ -77,14 +88,12 @@ function PasswordField({
           tabIndex={-1}
         >
           {showPassword ? (
-            // Eye-off icon (simple inline SVG, no extra library needed)
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.textMuted} strokeWidth="2">
               <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" strokeLinecap="round" strokeLinejoin="round"/>
-              <line x1="1" y1="1" x2="23" y2="23" stroke="#6b7280" strokeWidth="2"/>
+              <line x1="1" y1="1" x2="23" y2="23" stroke={colors.textMuted} strokeWidth="2"/>
             </svg>
           ) : (
-            // Eye icon
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={colors.textMuted} strokeWidth="2">
               <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
               <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -92,7 +101,7 @@ function PasswordField({
         </button>
       </div>
 
-      {/* Dark popover with arrow */}
+      {/* Dark popover with arrow - stays dark slate in both themes for strong contrast/legibility */}
       {showRequirements && showPopover && (
         <div
           style={{
@@ -108,7 +117,6 @@ function PasswordField({
             boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
           }}
         >
-          {/* Arrow pointer */}
           <div
             style={{
               position: "absolute",
@@ -137,7 +145,6 @@ function PasswordField({
 
 export default PasswordField;
 
-// Exported helper so parent forms can check overall validity before submit
 export const isPasswordValid = (password) => {
   return (
     password.length >= 8 &&

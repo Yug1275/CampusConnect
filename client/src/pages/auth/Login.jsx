@@ -3,14 +3,16 @@ import { useNavigate, Link } from "react-router-dom";
 import { GoogleLogin } from "@react-oauth/google";
 import { loginUser, googleLoginUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
 import SimplePasswordField from "../../components/SimplePasswordField";
 import AuthLayout from "../../components/layout/AuthLayout";
 import {
-  inputStyle,
-  labelStyle,
+  getInputStyle,
+  getLabelStyle,
   primaryButtonStyle,
-  linkStyle,
-  alertErrorStyle,
+  getLinkStyle,
+  getAlertErrorStyle,
 } from "../../styles/authStyles";
 
 function Login() {
@@ -18,6 +20,8 @@ function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { loginContext } = useAuth();
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -49,21 +53,21 @@ function Login() {
   return (
     <AuthLayout title="Welcome back" subtitle="Login to continue to your dashboard">
       {error && (
-        <div className="px-3 py-2 mb-3" style={alertErrorStyle}>
+        <div className="px-3 py-2 mb-3" style={getAlertErrorStyle(colors)}>
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label style={labelStyle} className="form-label d-block">
+          <label style={getLabelStyle(colors)} className="form-label d-block">
             Email
           </label>
           <input
             type="email"
             name="email"
             className="form-control"
-            style={inputStyle}
+            style={getInputStyle(colors)}
             value={formData.email}
             onChange={handleChange}
             required
@@ -78,7 +82,7 @@ function Login() {
         />
 
         <div className="text-end mb-3">
-          <Link to="/forgot-password" style={{ ...linkStyle, fontSize: "0.85rem" }}>
+          <Link to="/forgot-password" style={{ ...getLinkStyle(colors), fontSize: "0.85rem" }}>
             Forgot Password?
           </Link>
         </div>
@@ -95,11 +99,11 @@ function Login() {
       </form>
 
       <div className="d-flex align-items-center my-4">
-        <div style={{ flex: 1, height: "1px", backgroundColor: "#e2e8f0" }} />
-        <span className="px-3" style={{ color: "#94a3b8", fontSize: "0.8rem" }}>
+        <div style={{ flex: 1, height: "1px", backgroundColor: colors.border }} />
+        <span className="px-3" style={{ color: colors.textMuted, fontSize: "0.8rem" }}>
           OR
         </span>
-        <div style={{ flex: 1, height: "1px", backgroundColor: "#e2e8f0" }} />
+        <div style={{ flex: 1, height: "1px", backgroundColor: colors.border }} />
       </div>
 
       <div className="d-flex justify-content-center mb-4">
@@ -109,9 +113,9 @@ function Login() {
         />
       </div>
 
-      <p className="text-center mb-0" style={{ color: "#64748b", fontSize: "0.9rem" }}>
+      <p className="text-center mb-0" style={{ color: colors.textSecondary, fontSize: "0.9rem" }}>
         Don't have an account?{" "}
-        <Link to="/register" style={linkStyle}>
+        <Link to="/register" style={getLinkStyle(colors)}>
           Register
         </Link>
       </p>

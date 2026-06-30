@@ -1,31 +1,31 @@
 import { useRef } from "react";
+import { useTheme } from "../context/ThemeContext";
+import { themeColors } from "../styles/themeColors";
 
 // Reusable 6-digit OTP input made of separate boxes
 function OtpInput({ value, onChange }) {
   const inputsRef = useRef([]);
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
 
-  // value is a 6-character string, e.g. "123456" or "12_456" while typing
   const digits = value.split("");
   while (digits.length < 6) digits.push("");
 
   const handleChange = (index, e) => {
     const inputVal = e.target.value;
 
-    // Only allow a single digit
     if (!/^[0-9]?$/.test(inputVal)) return;
 
     const newDigits = [...digits];
     newDigits[index] = inputVal;
     onChange(newDigits.join(""));
 
-    // Move focus to next box if a digit was entered
     if (inputVal && index < 5) {
       inputsRef.current[index + 1].focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // Move focus to previous box on backspace if current box is empty
     if (e.key === "Backspace" && !digits[index] && index > 0) {
       inputsRef.current[index - 1].focus();
     }
@@ -50,7 +50,14 @@ function OtpInput({ value, onChange }) {
           inputMode="numeric"
           maxLength={1}
           className="form-control text-center mx-1"
-          style={{ width: "45px", height: "50px", fontSize: "1.25rem" }}
+          style={{
+            width: "45px",
+            height: "50px",
+            fontSize: "1.25rem",
+            backgroundColor: colors.inputBg,
+            borderColor: colors.inputBorder,
+            color: colors.textPrimary,
+          }}
           value={digit}
           onChange={(e) => handleChange(index, e)}
           onKeyDown={(e) => handleKeyDown(index, e)}

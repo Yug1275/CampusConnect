@@ -1,7 +1,13 @@
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
+
 function AuthLayout({ title, subtitle, children }) {
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
+
   return (
-    <div className="d-flex" style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}>
-      {/* Left branding panel - hidden on small screens */}
+    <div className="d-flex" style={{ minHeight: "100vh", backgroundColor: colors.pageBg }}>
+      {/* Left branding panel - always dark, regardless of site theme (brand identity) */}
       <div
         className="d-none d-lg-flex flex-column justify-content-between p-5"
         style={{
@@ -35,12 +41,11 @@ function AuthLayout({ title, subtitle, children }) {
       {/* Right form panel */}
       <div
         className="d-flex flex-column justify-content-center align-items-center flex-grow-1 p-4"
-        style={{ backgroundColor: "#f8fafc" }}
+        style={{ backgroundColor: colors.pageBg }}
       >
         <div style={{ width: "100%", maxWidth: "420px" }}>
-          {/* Mobile-only brand mark, shown when left panel is hidden */}
           <div className="d-lg-none text-center mb-4">
-            <span style={{ fontSize: "1.3rem", fontWeight: 700, color: "#1e293b" }}>
+            <span style={{ fontSize: "1.3rem", fontWeight: 700, color: colors.textPrimary }}>
               CampusConnect
             </span>
           </div>
@@ -48,17 +53,17 @@ function AuthLayout({ title, subtitle, children }) {
           <div
             className="p-4 p-md-5"
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: colors.cardBg,
               borderRadius: "16px",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 4px 16px rgba(15, 23, 42, 0.06)",
+              border: `1px solid ${colors.border}`,
+              boxShadow: theme === "light" ? "0 4px 16px rgba(15, 23, 42, 0.06)" : colors.shadow,
             }}
           >
-            <h2 style={{ fontWeight: 700, color: "#1e293b", fontSize: "1.5rem" }}>
+            <h2 style={{ fontWeight: 700, color: colors.textPrimary, fontSize: "1.5rem" }}>
               {title}
             </h2>
             {subtitle && (
-              <p style={{ color: "#64748b", fontSize: "0.9rem" }} className="mb-4">
+              <p style={{ color: colors.textSecondary, fontSize: "0.9rem" }} className="mb-4">
                 {subtitle}
               </p>
             )}

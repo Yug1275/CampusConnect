@@ -1,21 +1,26 @@
 import { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { resetPasswordRequest } from "../../services/authService";
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
 import OtpInput from "../../components/OtpInput";
 import PasswordField, { isPasswordValid } from "../../components/PasswordField";
 import AuthLayout from "../../components/layout/AuthLayout";
 import {
-  inputStyle,
-  labelStyle,
+  getInputStyle,
+  getReadonlyInputStyle,
+  getLabelStyle,
   primaryButtonStyle,
-  linkStyle,
-  alertSuccessStyle,
-  alertErrorStyle,
+  getLinkStyle,
+  getAlertSuccessStyle,
+  getAlertErrorStyle,
 } from "../../styles/authStyles";
 
 function ResetPassword() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
 
   const emailFromState = location.state?.email || "";
 
@@ -62,29 +67,26 @@ function ResetPassword() {
   return (
     <AuthLayout title="Reset Password" subtitle="Enter the OTP sent to your email">
       {message && (
-        <div className="px-3 py-2 mb-3" style={alertSuccessStyle}>
+        <div className="px-3 py-2 mb-3" style={getAlertSuccessStyle(colors)}>
           {message}
         </div>
       )}
       {error && (
-        <div className="px-3 py-2 mb-3" style={alertErrorStyle}>
+        <div className="px-3 py-2 mb-3" style={getAlertErrorStyle(colors)}>
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label style={labelStyle} className="form-label d-block">
+          <label style={getLabelStyle(colors)} className="form-label d-block">
             Email
           </label>
           <input
             type="email"
             name="email"
             className="form-control"
-            style={{
-              ...inputStyle,
-              backgroundColor: emailFromState ? "#f1f5f9" : "#fff",
-            }}
+            style={emailFromState ? getReadonlyInputStyle(colors) : getInputStyle(colors)}
             value={formData.email}
             onChange={handleChange}
             readOnly={!!emailFromState}
@@ -93,7 +95,7 @@ function ResetPassword() {
         </div>
 
         <div className="mb-3">
-          <label style={labelStyle} className="form-label d-block">
+          <label style={getLabelStyle(colors)} className="form-label d-block">
             Enter OTP
           </label>
           <OtpInput value={formData.otp} onChange={handleOtpChange} />
@@ -120,7 +122,7 @@ function ResetPassword() {
       </form>
 
       <p className="text-center mb-0">
-        <Link to="/login" style={linkStyle}>
+        <Link to="/login" style={getLinkStyle(colors)}>
           Back to Login
         </Link>
       </p>

@@ -1,13 +1,16 @@
 import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
 
 function StudentDashboard() {
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
 
-  // Placeholder data - will be replaced with real API data in later phases
   const upcomingEvents = [
     { primary: "Coding Club Hackathon", secondary: "Oct 12, 10:00 AM", tag: "Registered" },
     { primary: "Annual Sports Meet", secondary: "Oct 18, 8:00 AM", tag: "Open" },
@@ -30,49 +33,27 @@ function StudentDashboard() {
   return (
     <MainLayout>
       <div className="mb-4">
-        <h2 style={{ fontWeight: 700, color: "#1e293b" }}>
+        <h2 style={{ fontWeight: 700, color: colors.textPrimary }}>
           Welcome back, {user?.name?.split(" ")[0]}
         </h2>
-        <p style={{ color: "#64748b" }}>Here's your academic snapshot for today.</p>
+        <p style={{ color: colors.textSecondary }}>Here's your academic snapshot for today.</p>
       </div>
 
-      {/* Stat cards grid */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiCheckCircle size={20} />}
-            label="Attendance"
-            value="92%"
-            accentColor="#16a34a"
-          />
+          <StatCard icon={<FiCheckCircle size={20} />} label="Attendance" value="92%" accentColor="#16a34a" />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiCalendar size={20} />}
-            label="Upcoming Events"
-            value={upcomingEvents.length}
-            accentColor="#2563eb"
-          />
+          <StatCard icon={<FiCalendar size={20} />} label="Upcoming Events" value={upcomingEvents.length} accentColor="#2563eb" />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiBookOpen size={20} />}
-            label="Today's Classes"
-            value={todaysClasses.length}
-            accentColor="#9333ea"
-          />
+          <StatCard icon={<FiBookOpen size={20} />} label="Today's Classes" value={todaysClasses.length} accentColor="#9333ea" />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiAward size={20} />}
-            label="Badges Earned"
-            value={badges.length}
-            accentColor="#f59e0b"
-          />
+          <StatCard icon={<FiAward size={20} />} label="Badges Earned" value={badges.length} accentColor="#f59e0b" />
         </div>
       </div>
 
-      {/* List cards */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
           <ListCard title="Today's Classes" items={todaysClasses} />
@@ -87,18 +68,17 @@ function StudentDashboard() {
           <ListCard title="Recent Announcements" items={recentAnnouncements} />
         </div>
 
-        {/* Achievement badges */}
         <div className="col-12 col-lg-6">
           <div
             className="p-4 h-100"
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: colors.cardBg,
               borderRadius: "14px",
-              border: "1px solid #e2e8f0",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+              border: `1px solid ${colors.border}`,
+              boxShadow: colors.shadow,
             }}
           >
-            <h6 style={{ color: "#1e293b", fontWeight: 700, fontSize: "1rem" }} className="mb-3">
+            <h6 style={{ color: colors.textPrimary, fontWeight: 700, fontSize: "1rem" }} className="mb-3">
               Achievement Badges
             </h6>
             <div className="d-flex flex-wrap gap-2">
@@ -107,9 +87,9 @@ function StudentDashboard() {
                   key={index}
                   className="px-3 py-2 d-flex align-items-center"
                   style={{
-                    backgroundColor: "#fffbeb",
-                    color: "#92400e",
-                    border: "1px solid #fde68a",
+                    backgroundColor: theme === "light" ? "#fffbeb" : "#3a2e0f",
+                    color: theme === "light" ? "#92400e" : "#fcd34d",
+                    border: `1px solid ${theme === "light" ? "#fde68a" : "#78350f"}`,
                     borderRadius: "20px",
                     fontSize: "0.82rem",
                     fontWeight: 600,

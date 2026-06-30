@@ -2,14 +2,16 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "../../services/authService";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
 import PasswordField, { isPasswordValid } from "../../components/PasswordField";
 import AuthLayout from "../../components/layout/AuthLayout";
 import {
-  inputStyle,
-  labelStyle,
+  getInputStyle,
+  getLabelStyle,
   primaryButtonStyle,
-  linkStyle,
-  alertErrorStyle,
+  getLinkStyle,
+  getAlertErrorStyle,
 } from "../../styles/authStyles";
 
 function Register() {
@@ -22,6 +24,8 @@ function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const { loginContext } = useAuth();
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,21 +52,21 @@ function Register() {
   return (
     <AuthLayout title="Create your account" subtitle="Join CampusConnect to get started">
       {error && (
-        <div className="px-3 py-2 mb-3" style={alertErrorStyle}>
+        <div className="px-3 py-2 mb-3" style={getAlertErrorStyle(colors)}>
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label style={labelStyle} className="form-label d-block">
+          <label style={getLabelStyle(colors)} className="form-label d-block">
             Full Name
           </label>
           <input
             type="text"
             name="name"
             className="form-control"
-            style={inputStyle}
+            style={getInputStyle(colors)}
             value={formData.name}
             onChange={handleChange}
             required
@@ -70,14 +74,14 @@ function Register() {
         </div>
 
         <div className="mb-3">
-          <label style={labelStyle} className="form-label d-block">
+          <label style={getLabelStyle(colors)} className="form-label d-block">
             Email
           </label>
           <input
             type="email"
             name="email"
             className="form-control"
-            style={inputStyle}
+            style={getInputStyle(colors)}
             value={formData.email}
             onChange={handleChange}
             required
@@ -92,13 +96,13 @@ function Register() {
         />
 
         <div className="mb-4">
-          <label style={labelStyle} className="form-label d-block">
+          <label style={getLabelStyle(colors)} className="form-label d-block">
             Role
           </label>
           <select
             name="role"
             className="form-select"
-            style={inputStyle}
+            style={getInputStyle(colors)}
             value={formData.role}
             onChange={handleChange}
           >
@@ -120,9 +124,9 @@ function Register() {
         </button>
       </form>
 
-      <p className="text-center mb-0" style={{ color: "#64748b", fontSize: "0.9rem" }}>
+      <p className="text-center mb-0" style={{ color: colors.textSecondary, fontSize: "0.9rem" }}>
         Already have an account?{" "}
-        <Link to="/login" style={linkStyle}>
+        <Link to="/login" style={getLinkStyle(colors)}>
           Login
         </Link>
       </p>

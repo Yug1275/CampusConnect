@@ -1,17 +1,26 @@
-// Shared style objects for auth form inputs, buttons, and alerts
-export const inputStyle = {
-  borderColor: "#e2e8f0",
+// Theme-aware style generators for auth forms - call with the current
+// theme's color object (from themeColors.js) to get the right style.
+
+export const getInputStyle = (colors) => ({
+  backgroundColor: colors.inputBg,
+  borderColor: colors.inputBorder,
+  color: colors.textPrimary,
   borderRadius: "8px",
   padding: "10px 14px",
   fontSize: "0.92rem",
-};
+});
 
-export const labelStyle = {
-  color: "#334155",
+export const getReadonlyInputStyle = (colors) => ({
+  ...getInputStyle(colors),
+  backgroundColor: colors.inputReadonlyBg,
+});
+
+export const getLabelStyle = (colors) => ({
+  color: colors.textSecondary,
   fontSize: "0.85rem",
   fontWeight: 600,
   marginBottom: "6px",
-};
+});
 
 export const primaryButtonStyle = {
   backgroundColor: "#2563eb",
@@ -23,24 +32,24 @@ export const primaryButtonStyle = {
   transition: "background-color 0.15s ease",
 };
 
-export const linkStyle = {
-  color: "#2563eb",
+export const getLinkStyle = (colors) => ({
+  color: colors.linkColor,
   fontWeight: 600,
   textDecoration: "none",
-};
+});
 
-export const alertSuccessStyle = {
-  backgroundColor: "#f0fdf4",
-  border: "1px solid #bbf7d0",
-  color: "#166534",
+export const getAlertSuccessStyle = (colors) => ({
+  backgroundColor: colors.alertSuccessBg,
+  border: `1px solid ${colors.alertSuccessBorder}`,
+  color: colors.alertSuccessText,
   borderRadius: "8px",
   fontSize: "0.88rem",
-};
+});
 
-export const alertErrorStyle = {
-  backgroundColor: "#fef2f2",
-  border: "1px solid #fecaca",
-  color: "#991b1b",
+export const getAlertErrorStyle = (colors) => ({
+  backgroundColor: colors.alertErrorBg,
+  border: `1px solid ${colors.alertErrorBorder}`,
+  color: colors.alertErrorText,
   borderRadius: "8px",
   fontSize: "0.88rem",
-};
+});

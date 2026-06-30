@@ -1,11 +1,17 @@
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
+
 function Footer() {
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
+
   return (
     <footer
       className="text-center py-3"
       style={{
-        backgroundColor: "#ffffff",
-        borderTop: "1px solid #e2e8f0",
-        color: "#94a3b8",
+        backgroundColor: colors.footerBg,
+        borderTop: `1px solid ${colors.border}`,
+        color: colors.textMuted,
         fontSize: "0.82rem",
       }}
     >

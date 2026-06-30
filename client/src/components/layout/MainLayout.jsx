@@ -1,12 +1,17 @@
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
 import Footer from "./Footer";
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
 
 function MainLayout({ children }) {
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
+
   return (
     <div
       className="d-flex flex-column"
-      style={{ minHeight: "100vh", backgroundColor: "#f8fafc" }}
+      style={{ minHeight: "100vh", backgroundColor: colors.pageBg }}
     >
       <Navbar />
 

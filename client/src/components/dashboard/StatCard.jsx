@@ -1,12 +1,18 @@
+import { useTheme } from "../../context/ThemeContext";
+import { themeColors } from "../../styles/themeColors";
+
 function StatCard({ icon, label, value, accentColor = "#2563eb" }) {
+  const { theme } = useTheme();
+  const colors = themeColors[theme];
+
   return (
     <div
       className="p-4 d-flex flex-column"
       style={{
-        backgroundColor: "#ffffff",
+        backgroundColor: colors.cardBg,
         borderRadius: "14px",
-        border: "1px solid #e2e8f0",
-        boxShadow: "0 1px 3px rgba(0,0,0,0.04)",
+        border: `1px solid ${colors.border}`,
+        boxShadow: colors.shadow,
         minWidth: "0",
       }}
     >
@@ -24,10 +30,10 @@ function StatCard({ icon, label, value, accentColor = "#2563eb" }) {
           {icon}
         </span>
       </div>
-      <span style={{ color: "#64748b", fontSize: "0.85rem", fontWeight: 500 }}>
+      <span style={{ color: colors.textSecondary, fontSize: "0.85rem", fontWeight: 500 }}>
         {label}
       </span>
-      <span style={{ color: "#1e293b", fontSize: "1.6rem", fontWeight: 700 }}>
+      <span style={{ color: colors.textPrimary, fontSize: "1.6rem", fontWeight: 700 }}>
         {value}
       </span>
     </div>
