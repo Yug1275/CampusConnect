@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FiHome, FiUser } from "react-icons/fi";
+import { FiHome, FiUser, FiGrid } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
@@ -13,6 +13,10 @@ function Sidebar() {
     { to: "/dashboard", label: "Dashboard", icon: <FiHome size={18} /> },
     { to: "/profile", label: "My Profile", icon: <FiUser size={18} /> },
   ];
+
+  if (user?.role === "admin") {
+    navItems.push({ to: "/admin/departments", label: "Departments", icon: <FiGrid size={18} /> });
+  }
 
   return (
     <aside

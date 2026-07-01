@@ -6,6 +6,7 @@ import ForgotPassword from "../pages/auth/ForgotPassword";
 import ResetPassword from "../pages/auth/ResetPassword";
 import DashboardRouter from "../pages/DashboardRouter";
 import Profile from "../pages/Profile";
+import DepartmentManagement from "../pages/admin/DepartmentManagement";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -29,6 +30,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/departments"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <DepartmentManagement />
           </ProtectedRoute>
         }
       />
