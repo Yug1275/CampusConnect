@@ -8,6 +8,7 @@ import DashboardRouter from "../pages/DashboardRouter";
 import Profile from "../pages/Profile";
 import DepartmentManagement from "../pages/admin/DepartmentManagement";
 import StudentManagement from "../pages/admin/StudentManagement";
+import FacultyManagement from "../pages/admin/FacultyManagement";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -47,6 +48,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <StudentManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/faculty"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <FacultyManagement />
           </ProtectedRoute>
         }
       />
