@@ -1,4 +1,5 @@
 const Department = require("../models/Department");
+const User = require("../models/User");
 
 // @desc    Create a new department
 // @route   POST /api/departments
@@ -69,6 +70,48 @@ const getDepartmentById = async (req, res, next) => {
   }
 };
 
+// @desc    Get student/faculty statistics for a department
+// @route   GET /api/departments/:id/stats
+// @access  Private (any authenticated user)
+const getDepartmentStats = async (req, res, next) => {
+  try {
+    const department = await Department.findById(req.params.id).populate(
+      "headOfDepartment",
+      "name email"
+    );
+
+    if (!department) {
+      res.status(404);
+      throw new Error("Department not found");
+    }
+
+    // Students/Faculty reference department by name (matches User schema - Phase 2)
+    const [studentCount, facultyCount] = await Promise.all([
+      User.countDocuments({ role: "student", department: department.name }),
+      User.countDocuments({ role: "faculty", department: department.name }),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      department: {
+        id: department._id,
+        name: department.name,
+        code: department.code,
+        description: department.description,
+        headOfDepartment: department.headOfDepartment,
+        createdAt: department.createdAt,
+      },
+      stats: {
+        studentCount,
+        facultyCount,
+        totalHeadcount: studentCount + facultyCount,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Update a department
 // @route   PUT /api/departments/:id
 // @access  Private/Admin
@@ -120,6 +163,7 @@ module.exports = {
   createDepartment,
   getDepartments,
   getDepartmentById,
+  getDepartmentStats,
   updateDepartment,
   deleteDepartment,
 };
