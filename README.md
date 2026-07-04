@@ -2,25 +2,31 @@
 
 **One Platform for Students, Faculty & Campus Life**
 
-CampusConnect is a full-stack University Management Portal built using the MERN Stack (MongoDB, Express.js, React.js, Node.js).
+A full-stack University Management Portal built using the MERN Stack (MongoDB, Express.js, React.js, Node.js).
 
 ## Project Structure
 CampusConnect/
-
 ├── client/   → React frontend (Vite)
-
 ├── server/   → Node.js + Express backend
 
 ## Status
 
-Phase 1: Project Setup & Architecture — Completed
+**Project 1 (Phases 1–4): Completed**
+
+| Phase | Title | Status |
+|---|---|---|
+| 1 | Project Setup & Architecture | Completed |
+| 2 | Authentication & Authorization | Completed |
+| 3 | Core Dashboards & Profiles | Completed |
+| 4 | Student, Faculty & Department Management | Completed |
 
 ## Tech Stack
 
-- Frontend: React, Vite, Bootstrap, Axios, React Router DOM
-- Backend: Node.js, Express.js, MongoDB, Mongoose
-- Authentication: JWT, bcrypt, Google OAuth (upcoming in Phase 2)
-- Database: MongoDB Atlas
+- **Frontend:** React, Vite, Bootstrap, Axios, React Router DOM, React Icons
+- **Backend:** Node.js, Express.js, MongoDB, Mongoose
+- **Auth:** JWT, bcrypt, Google OAuth, Nodemailer (OTP)
+- **File Uploads:** Multer
+- **Database:** MongoDB Atlas
 
 ## Backend Setup
 
@@ -29,21 +35,20 @@ cd server
 npm install
 ```
 
-Create a `.env` file inside `server/` based on `.env.example`:
-
+Create `.env` in `server/`:
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_atlas_connection_string
 JWT_SECRET=your_jwt_secret
+EMAIL_USER=your_email_address
+EMAIL_PASS=your_email_app_password
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
 ```
-
-Run the backend:
 
 ```bash
 npm run dev
 ```
-
-Server runs at `http://localhost:5000`. Health check available at `http://localhost:5000/api/health`.
+Runs at `http://localhost:5000` | Health check: `/api/health`
 
 ## Frontend Setup
 
@@ -52,56 +57,79 @@ cd client
 npm install
 ```
 
-Create a `.env` file inside `client/` based on `.env.example`:
-
+Create `.env` in `client/`:
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id
 ```
-
-Run the frontend:
 
 ```bash
 npm run dev
 ```
+Runs at `http://localhost:5173`
 
-Frontend runs at `http://localhost:5173`.
-
-## Backend Folder Structure
+## Folder Structure
 server/
-
-├── config/        → Database connection
-
-├── models/         → Mongoose schemas (Phase 2 onward)
-
-├── routes/         → API routes (Phase 2 onward)
-
-├── controllers/     → Business logic (Phase 2 onward)
-
-├── middleware/      → Error handling, logging, auth guards
-
-├── utils/          → Helper functions
-
-├── uploads/        → File upload storage
-
-└── server.js       → Entry point
-
-## Frontend Folder Structure
+├── config/       → Database connection
+├── models/       → User, Department schemas
+├── routes/       → API routes
+├── controllers/  → Business logic
+├── middleware/   → Auth, error handling, upload
+├── utils/        → JWT, OTP, email helpers
+└── uploads/      → Profile pictures
 client/src/
+├── components/   → layout/, dashboard/, ui/
+├── pages/        → auth/, student/, faculty/, admin/
+├── context/      → AuthContext, ThemeContext
+├── services/     → Axios API calls
+├── styles/       → theme colors, shared styles
+└── routes/       → AppRoutes, ProtectedRoute
 
-├── components/    → Reusable UI components (Phase 3 onward)
+## Database Collections
 
-├── pages/         → Page-level views
+- **users** — unified model for students, faculty, admins (role-based)
+- **departments** — university departments
 
-├── context/       → React Context providers (Phase 2 onward)
+## API Overview
 
-├── services/      → Axios API calls
+| Module | Base Route | Access |
+|---|---|---|
+| Auth | `/api/auth` | Public |
+| User Profile | `/api/users` | Private |
+| Departments | `/api/departments` | Mixed (read: all, write: admin) |
+| Students | `/api/students` | Admin |
+| Faculty | `/api/faculty` | Admin |
+| Admin Summary | `/api/admin/summary` | Admin |
+| Health | `/api/health` | Public |
 
-├── hooks/         → Custom React hooks
+## Phase Summaries
 
-├── utils/         → Helper functions
+**Phase 1:** Project foundation — backend server, MongoDB connection, frontend scaffold, verified connectivity.
 
-└── routes/        → Route configuration
+**Phase 2:** Full authentication — JWT, bcrypt, Google OAuth, OTP-based password recovery, complete auth UI with persistent sessions.
 
-## Phase 1 Summary
+**Phase 3:** Application shell — reusable layout, role-specific dashboards, profile management with image upload, light/dark theme system, animated landing page.
 
-Phase 1 establishes the complete project foundation: repository structure, backend server with database connectivity and error handling, frontend scaffold with routing and styling, and verified end-to-end connectivity between both applications.
+**Phase 4:** Admin data management — full CRUD for Departments, Students, and Faculty with search/filter/pagination, department statistics, and live-data Admin Dashboard.
+
+## Project 1 Milestone — Complete
+
+**Progress:** 4 of 10 phases (40%)
+
+Features: Auth system · Role-based dashboards · Theme system · Department/Student/Faculty CRUD · Department statistics · Live admin dashboard
+
+```bash
+git tag project-1-complete
+git push origin project-1-complete
+```
+
+## Roadmap
+
+| Milestone | Phases | Focus |
+|---|---|---|
+| **Project 1** ✅ | 1–4 | Foundation, Auth, Dashboards, Core CRUD |
+| Project 2 | 5–7 | Attendance, Events & Clubs, Campus Map |
+| Project 3 | 8–10 | Search, Analytics, AI Assistant, Deployment |
+
+---
+*Internship / portfolio project.*
