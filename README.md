@@ -2,7 +2,7 @@
 
 **One Platform for Students, Faculty & Campus Life**
 
-A full-stack University Management Portal built using the MERN Stack (MongoDB, Express.js, React.js, Node.js).
+A full-stack University Management Portal built using the MERN Stack (MongoDB, Express.js, React.js, Node.js)
 
 ## Project Structure
 CampusConnect/
