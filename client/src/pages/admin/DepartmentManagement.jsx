@@ -1,5 +1,6 @@
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { FiPlus, FiEdit2, FiTrash2, FiGrid } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiTrash2, FiGrid , FiEye} from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
@@ -20,6 +21,7 @@ import {
 } from "../../services/departmentService";
 
 function DepartmentManagement() {
+  const navigate = useNavigate();
   const { theme } = useTheme();
   const colors = themeColors[theme];
 
@@ -258,6 +260,14 @@ function DepartmentManagement() {
                       {dept.description || "—"}
                     </td>
                     <td className="text-end pe-4" style={{ backgroundColor: "transparent" }}>
+                      <button
+                        onClick={() => navigate(`/admin/departments/${dept._id}`)}
+                        className="btn btn-sm border-0 bg-transparent me-1"
+                        style={{ color: colors.textSecondary }}
+                        title="View Details"
+                      >
+                        <FiEye size={16} />
+                      </button>
                       <button
                         onClick={() => openEditModal(dept)}
                         className="btn btn-sm border-0 bg-transparent me-1"
