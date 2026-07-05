@@ -10,6 +10,7 @@ import DepartmentManagement from "../pages/admin/DepartmentManagement";
 import DepartmentDetail from "../pages/admin/DepartmentDetail";
 import StudentManagement from "../pages/admin/StudentManagement";
 import FacultyManagement from "../pages/admin/FacultyManagement";
+import SubjectManagement from "../pages/admin/SubjectManagement";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -65,6 +66,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <FacultyManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/subjects"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <SubjectManagement />
           </ProtectedRoute>
         }
       />
