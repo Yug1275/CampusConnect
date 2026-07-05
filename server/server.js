@@ -12,6 +12,7 @@ const departmentRoutes = require("./routes/departmentRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const subjectRoutes = require("./routes/subjectRoutes");
 
 connectDB();
 
@@ -37,6 +38,7 @@ app.use("/api/departments", departmentRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/faculty", facultyRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/subjects", subjectRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
