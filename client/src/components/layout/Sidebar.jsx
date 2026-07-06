@@ -1,5 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { FiHome, FiUser, FiGrid, FiUsers, FiUserCheck, FiBookOpen } from "react-icons/fi";
+import {
+  FiHome,
+  FiUser,
+  FiGrid,
+  FiUsers,
+  FiUserCheck,
+  FiBookOpen,
+  FiCheckSquare,
+} from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
@@ -21,6 +29,14 @@ function Sidebar() {
       { to: "/admin/faculty", label: "Faculty", icon: <FiUserCheck size={18} /> },
       { to: "/admin/subjects", label: "Subjects", icon: <FiBookOpen size={18} /> }
     );
+  }
+
+  if (user?.role === "faculty" || user?.role === "admin") {
+    navItems.push({
+      to: "/faculty/attendance",
+      label: "Mark Attendance",
+      icon: <FiCheckSquare size={18} />,
+    });
   }
 
   return (
