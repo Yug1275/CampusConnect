@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { FiCheck, FiX, FiUsers, FiCalendar } from "react-icons/fi";
+import { FiCheck, FiX, FiUsers, FiCalendar, FiGrid } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
+import QrSessionModal from "../../components/attendance/QrSessionModal";
 import {
   getInputStyle,
   getLabelStyle,
@@ -30,13 +31,15 @@ function MarkAttendance() {
   const [selectedDate, setSelectedDate] = useState(todayISO());
 
   const [students, setStudents] = useState([]);
-  const [statusMap, setStatusMap] = useState({}); // { studentId: "present" | "absent" }
+  const [statusMap, setStatusMap] = useState({});
 
   const [loadingSubjects, setLoadingSubjects] = useState(true);
   const [loadingRoster, setLoadingRoster] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchSubjects = async () => {
@@ -72,7 +75,6 @@ function MarkAttendance() {
         const rosterStudents = rosterRes.data.students;
         setStudents(rosterStudents);
 
-        // Pre-fill: existing marks first, default everyone else to "present"
         const existingMap = {};
         existingRes.data.records.forEach((rec) => {
           existingMap[rec.student] = rec.status;
@@ -128,6 +130,11 @@ function MarkAttendance() {
   const presentCount = Object.values(statusMap).filter((s) => s === "present").length;
   const absentCount = students.length - presentCount;
 
+  const selectedSubjectObj = subjects.find((s) => s._id === selectedSubject);
+  const subjectLabel = selectedSubjectObj
+    ? `${selectedSubjectObj.name} (${selectedSubjectObj.code}) — ${new Date(selectedDate).toLocaleDateString()}`
+    : "";
+
   return (
     <MainLayout>
       <div className="mb-4">
@@ -150,7 +157,7 @@ function MarkAttendance() {
 
       {/* Subject + Date selectors */}
       <div
-        className="p-4 mb-4 row g-3"
+        className="p-4 mb-4 row g-3 align-items-end"
         style={{
           backgroundColor: colors.cardBg,
           borderRadius: "14px",
@@ -158,7 +165,7 @@ function MarkAttendance() {
           boxShadow: colors.shadow,
         }}
       >
-        <div className="col-12 col-md-7">
+        <div className="col-12 col-md-5">
           <label style={getLabelStyle(colors)} className="form-label d-block">
             Subject
           </label>
@@ -185,7 +192,7 @@ function MarkAttendance() {
           )}
         </div>
 
-        <div className="col-12 col-md-5">
+        <div className="col-12 col-md-4">
           <label style={getLabelStyle(colors)} className="form-label d-block">
             <FiCalendar size={14} className="me-1" /> Date
           </label>
@@ -197,6 +204,25 @@ function MarkAttendance() {
             max={todayISO()}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
+        </div>
+
+        <div className="col-12 col-md-3">
+          <button
+            onClick={() => setIsQrModalOpen(true)}
+            disabled={!selectedSubject}
+            className="btn w-100 d-flex align-items-center justify-content-center px-3 py-2"
+            style={{
+              backgroundColor: colors.activeLinkBg,
+              color: colors.activeLinkColor,
+              borderRadius: "8px",
+              fontWeight: 600,
+              fontSize: "0.88rem",
+              opacity: !selectedSubject ? 0.5 : 1,
+              border: "none",
+            }}
+          >
+            <FiGrid size={16} className="me-2" /> Generate QR
+          </button>
         </div>
       </div>
 
@@ -343,6 +369,14 @@ function MarkAttendance() {
           )}
         </div>
       )}
+
+      <QrSessionModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        subjectId={selectedSubject}
+        date={selectedDate}
+        subjectLabel={subjectLabel}
+      />
     </MainLayout>
   );
 }

@@ -14,6 +14,7 @@ const facultyRoutes = require("./routes/facultyRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const subjectRoutes = require("./routes/subjectRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
+const attendanceSessionRoutes = require("./routes/attendanceSessionRoutes");
 
 connectDB();
 
@@ -41,6 +42,7 @@ app.use("/api/faculty", facultyRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/attendance", attendanceRoutes);
+app.use("/api/attendance/qr", attendanceSessionRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
