@@ -8,7 +8,9 @@ export const getAttendanceForSubjectByDate = (subjectId, date) =>
 
 export const markAttendance = (data) => api.post("/attendance/mark", data);
 
-// Added in Task 5/6 - student's own attendance view
 export const getMyAttendance = (params) => api.get("/attendance/my", { params });
 
 export const getMyAttendanceSummary = () => api.get("/attendance/my/summary");
+
+// Added in Task 9 - faculty's average attendance across their subjects
+export const getFacultyAttendanceSummary = () => api.get("/attendance/faculty/summary");

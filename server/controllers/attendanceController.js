@@ -194,10 +194,62 @@ const getMyAttendanceSummary = async (req, res, next) => {
   }
 };
 
+// @desc    Get the logged-in faculty's average attendance percentage
+//          across all subjects they teach
+// @route   GET /api/attendance/faculty/summary
+// @access  Private/Faculty/Admin
+const getFacultyAttendanceSummary = async (req, res, next) => {
+  try {
+    const facultyId = req.user._id;
+
+    // Find all subjects taught by this faculty member
+    const subjects = await Subject.find({ faculty: facultyId }).select("_id");
+    const subjectIds = subjects.map((s) => s._id);
+
+    if (subjectIds.length === 0) {
+      return res.status(200).json({
+        success: true,
+        summary: { totalClasses: 0, totalPresent: 0, averagePercentage: 0, subjectCount: 0 },
+      });
+    }
+
+    const [aggregateResult] = await Attendance.aggregate([
+      { $match: { subject: { $in: subjectIds } } },
+      {
+        $group: {
+          _id: null,
+          totalClasses: { $sum: 1 },
+          presentCount: {
+            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] },
+          },
+        },
+      },
+    ]);
+
+    const totalClasses = aggregateResult?.totalClasses || 0;
+    const totalPresent = aggregateResult?.presentCount || 0;
+    const averagePercentage =
+      totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 1000) / 10 : 0;
+
+    res.status(200).json({
+      success: true,
+      summary: {
+        totalClasses,
+        totalPresent,
+        averagePercentage,
+        subjectCount: subjectIds.length,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getStudentsForSubject,
   markAttendance,
   getAttendanceForSubjectByDate,
   getMyAttendance,
   getMyAttendanceSummary,
+  getFacultyAttendanceSummary,
 };

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -5,12 +6,33 @@ import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
+import { getMyAttendanceSummary } from "../../services/attendanceService";
 
 function StudentDashboard() {
   const { user } = useAuth();
   const { theme } = useTheme();
   const colors = themeColors[theme];
 
+  const [attendancePercentage, setAttendancePercentage] = useState(null);
+  const [loadingAttendance, setLoadingAttendance] = useState(true);
+
+  useEffect(() => {
+    const fetchAttendance = async () => {
+      try {
+        const response = await getMyAttendanceSummary();
+        setAttendancePercentage(response.data.overall.percentage);
+      } catch (err) {
+        setAttendancePercentage(null);
+      } finally {
+        setLoadingAttendance(false);
+      }
+    };
+    fetchAttendance();
+  }, []);
+
+  // Placeholder data - Today's Classes and Upcoming Events remain static.
+  // Today's Classes requires a Timetable module (not yet built).
+  // Upcoming Events requires the Events module, arriving in Phase 6.
   const upcomingEvents = [
     { primary: "Coding Club Hackathon", secondary: "Oct 12, 10:00 AM", tag: "Registered" },
     { primary: "Annual Sports Meet", secondary: "Oct 18, 8:00 AM", tag: "Open" },
@@ -30,6 +52,15 @@ function StudentDashboard() {
 
   const badges = ["High Attendance", "Top Performer", "Event Participant"];
 
+  const attendanceDisplay = loadingAttendance
+    ? "…"
+    : attendancePercentage !== null
+    ? `${attendancePercentage}%`
+    : "—";
+
+  const attendanceAccent =
+    attendancePercentage !== null && attendancePercentage < 75 ? "#f59e0b" : "#16a34a";
+
   return (
     <MainLayout>
       <div className="mb-4">
@@ -41,16 +72,40 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard icon={<FiCheckCircle size={20} />} label="Attendance" value="92%" accentColor="#16a34a" />
+          {/* Now wired to real data via Task 5's attendance summary API */}
+          <StatCard
+            icon={<FiCheckCircle size={20} />}
+            label="Attendance"
+            value={attendanceDisplay}
+            accentColor={attendanceAccent}
+          />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard icon={<FiCalendar size={20} />} label="Upcoming Events" value={upcomingEvents.length} accentColor="#2563eb" />
+          {/* Static placeholder - Events module arrives in Phase 6 */}
+          <StatCard
+            icon={<FiCalendar size={20} />}
+            label="Upcoming Events"
+            value={upcomingEvents.length}
+            accentColor="#2563eb"
+          />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard icon={<FiBookOpen size={20} />} label="Today's Classes" value={todaysClasses.length} accentColor="#9333ea" />
+          {/* Static placeholder - requires a Timetable module (not yet built) */}
+          <StatCard
+            icon={<FiBookOpen size={20} />}
+            label="Today's Classes"
+            value={todaysClasses.length}
+            accentColor="#9333ea"
+          />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard icon={<FiAward size={20} />} label="Badges Earned" value={badges.length} accentColor="#f59e0b" />
+          {/* Static placeholder - Achievement Badges arrive in Phase 10 */}
+          <StatCard
+            icon={<FiAward size={20} />}
+            label="Badges Earned"
+            value={badges.length}
+            accentColor="#f59e0b"
+          />
         </div>
       </div>
 

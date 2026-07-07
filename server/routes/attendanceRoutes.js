@@ -6,6 +6,7 @@ const {
   getAttendanceForSubjectByDate,
   getMyAttendance,
   getMyAttendanceSummary,
+  getFacultyAttendanceSummary,
 } = require("../controllers/attendanceController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 
@@ -25,5 +26,7 @@ router.post("/mark", protect, authorize("faculty", "admin"), markAttendance);
 
 router.get("/my", protect, getMyAttendance);
 router.get("/my/summary", protect, getMyAttendanceSummary);
+
+router.get("/faculty/summary", protect, authorize("faculty", "admin"), getFacultyAttendanceSummary);
 
 module.exports = router;
