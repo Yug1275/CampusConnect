@@ -15,6 +15,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const subjectRoutes = require("./routes/subjectRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const attendanceSessionRoutes = require("./routes/attendanceSessionRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 
 connectDB();
 
@@ -43,6 +44,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/attendance/qr", attendanceSessionRoutes);
+app.use("/api/events", eventRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
