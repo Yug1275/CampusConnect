@@ -7,6 +7,7 @@ import {
   FiUserCheck,
   FiBookOpen,
   FiCheckSquare,
+  FiBarChart2,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -36,6 +37,14 @@ function Sidebar() {
       to: "/faculty/attendance",
       label: "Mark Attendance",
       icon: <FiCheckSquare size={18} />,
+    });
+  }
+
+  if (user?.role === "student") {
+    navItems.push({
+      to: "/student/attendance",
+      label: "Attendance History",
+      icon: <FiBarChart2 size={18} />,
     });
   }
 

@@ -12,6 +12,7 @@ import StudentManagement from "../pages/admin/StudentManagement";
 import FacultyManagement from "../pages/admin/FacultyManagement";
 import SubjectManagement from "../pages/admin/SubjectManagement";
 import MarkAttendance from "../pages/faculty/MarkAttendance";
+import AttendanceHistory from "../pages/student/AttendanceHistory";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -83,6 +84,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["faculty", "admin"]}>
             <MarkAttendance />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/attendance"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <AttendanceHistory />
           </ProtectedRoute>
         }
       />
