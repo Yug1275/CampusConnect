@@ -1,9 +1,8 @@
 const Attendance = require("../models/Attendance");
 const Subject = require("../models/Subject");
 const User = require("../models/User");
+const mongoose = require("mongoose");
 
-// Normalizes a date to midnight UTC, so "2026-01-05T14:30:00" and
-// "2026-01-05T09:00:00" are treated as the same attendance day.
 const normalizeDate = (dateInput) => {
   const d = new Date(dateInput);
   d.setUTCHours(0, 0, 0, 0);
@@ -22,8 +21,6 @@ const getStudentsForSubject = async (req, res, next) => {
       throw new Error("Subject not found");
     }
 
-    // Students store department as a name string (Phase 2 schema);
-    // Subject stores department as a reference - bridge via the populated name.
     const students = await User.find({
       role: "student",
       department: subject.department.name,
@@ -41,7 +38,6 @@ const getStudentsForSubject = async (req, res, next) => {
 // @desc    Mark attendance for multiple students in a subject on a given date
 // @route   POST /api/attendance/mark
 // @access  Private/Faculty/Admin
-// @body    { subject, date, records: [{ student, status }] }
 const markAttendance = async (req, res, next) => {
   try {
     const { subject, date, records } = req.body;
@@ -59,8 +55,6 @@ const markAttendance = async (req, res, next) => {
 
     const attendanceDate = normalizeDate(date);
 
-    // Build one upsert operation per student - creates if new,
-    // updates status if already marked for this subject/date.
     const bulkOps = records.map(({ student, status }) => ({
       updateOne: {
         filter: { subject, student, date: attendanceDate },
@@ -91,7 +85,6 @@ const markAttendance = async (req, res, next) => {
 };
 
 // @desc    Get attendance already marked for a subject on a given date
-//          (used to pre-fill the marking UI if re-opened same day)
 // @route   GET /api/attendance/subject/:subjectId?date=
 // @access  Private/Faculty/Admin
 const getAttendanceForSubjectByDate = async (req, res, next) => {
@@ -116,8 +109,95 @@ const getAttendanceForSubjectByDate = async (req, res, next) => {
   }
 };
 
+// @desc    Get the logged-in student's own attendance history
+// @route   GET /api/attendance/my?subject=
+// @access  Private (student)
+const getMyAttendance = async (req, res, next) => {
+  try {
+    const { subject } = req.query;
+
+    const query = { student: req.user._id };
+    if (subject) query.subject = subject;
+
+    const records = await Attendance.find(query)
+      .populate("subject", "name code")
+      .sort({ date: -1 });
+
+    res.status(200).json({ success: true, count: records.length, records });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get the logged-in student's attendance percentage,
+//          overall and broken down per subject
+// @route   GET /api/attendance/my/summary
+// @access  Private (student)
+const getMyAttendanceSummary = async (req, res, next) => {
+  try {
+    const studentId = req.user._id;
+
+    const perSubject = await Attendance.aggregate([
+      { $match: { student: new mongoose.Types.ObjectId(studentId) } },
+      {
+        $group: {
+          _id: "$subject",
+          totalClasses: { $sum: 1 },
+          presentCount: {
+            $sum: { $cond: [{ $eq: ["$status", "present"] }, 1, 0] },
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "subjects",
+          localField: "_id",
+          foreignField: "_id",
+          as: "subjectInfo",
+        },
+      },
+      { $unwind: "$subjectInfo" },
+      {
+        $project: {
+          _id: 0,
+          subjectId: "$_id",
+          subjectName: "$subjectInfo.name",
+          subjectCode: "$subjectInfo.code",
+          totalClasses: 1,
+          presentCount: 1,
+          percentage: {
+            $round: [
+              { $multiply: [{ $divide: ["$presentCount", "$totalClasses"] }, 100] },
+              1,
+            ],
+          },
+        },
+      },
+      { $sort: { subjectName: 1 } },
+    ]);
+
+    const totalClasses = perSubject.reduce((sum, s) => sum + s.totalClasses, 0);
+    const totalPresent = perSubject.reduce((sum, s) => sum + s.presentCount, 0);
+    const overallPercentage = totalClasses > 0 ? Math.round((totalPresent / totalClasses) * 1000) / 10 : 0;
+
+    res.status(200).json({
+      success: true,
+      overall: {
+        totalClasses,
+        totalPresent,
+        percentage: overallPercentage,
+      },
+      perSubject,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getStudentsForSubject,
   markAttendance,
   getAttendanceForSubjectByDate,
+  getMyAttendance,
+  getMyAttendanceSummary,
 };
