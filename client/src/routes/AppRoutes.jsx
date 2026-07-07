@@ -14,6 +14,7 @@ import SubjectManagement from "../pages/admin/SubjectManagement";
 import MarkAttendance from "../pages/faculty/MarkAttendance";
 import AttendanceHistory from "../pages/student/AttendanceHistory";
 import ScanAttendance from "../pages/student/ScanAttendance";
+import EventManagement from "../pages/shared/EventManagement";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -101,6 +102,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <ScanAttendance />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/manage"
+        element={
+          <ProtectedRoute allowedRoles={["faculty", "admin"]}>
+            <EventManagement />
           </ProtectedRoute>
         }
       />
