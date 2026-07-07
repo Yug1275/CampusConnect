@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const AttendanceSession = require("../models/AttendanceSession");
 const Subject = require("../models/Subject");
+const Attendance = require("../models/Attendance");
 
 const normalizeDate = (dateInput) => {
   const d = new Date(dateInput);
@@ -84,4 +85,60 @@ const getActiveSession = async (req, res, next) => {
   }
 };
 
-module.exports = { generateSession, getActiveSession };
+// @desc    Mark the logged-in student present by scanning a QR session token
+// @route   POST /api/attendance/qr/scan
+// @access  Private/Student
+const markAttendanceViaQr = async (req, res, next) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      res.status(400);
+      throw new Error("QR token is required");
+    }
+
+    const session = await AttendanceSession.findOne({ sessionToken: token }).populate({
+      path: "subject",
+      populate: { path: "department", select: "name" },
+    });
+
+    if (!session) {
+      res.status(404);
+      throw new Error("Invalid QR code. No matching session found");
+    }
+
+    if (session.expiresAt < new Date()) {
+      res.status(400);
+      throw new Error("This QR code has expired. Ask your faculty to generate a new one");
+    }
+
+    const subject = session.subject;
+
+    // Eligibility check - student must belong to the subject's department + semester
+    if (req.user.department !== subject.department.name || req.user.semester !== subject.semester) {
+      res.status(403);
+      throw new Error("You are not eligible to mark attendance for this subject");
+    }
+
+    // Upsert - same behavior as manual marking (Task 3): re-scanning just confirms "present" again
+    await Attendance.findOneAndUpdate(
+      { subject: subject._id, student: req.user._id, date: session.date },
+      {
+        $set: {
+          status: "present",
+          markedBy: session.faculty,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: `Attendance marked present for ${subject.name} (${subject.code})`,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { generateSession, getActiveSession, markAttendanceViaQr };

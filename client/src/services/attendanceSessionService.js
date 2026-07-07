@@ -5,3 +5,5 @@ export const generateQrSession = (subject, date) =>
 
 export const getActiveQrSession = (subject, date) =>
   api.get("/attendance/qr/active", { params: { subject, date } });
+
+export const scanQrAttendance = (token) => api.post("/attendance/qr/scan", { token });

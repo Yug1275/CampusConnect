@@ -8,6 +8,7 @@ import {
   FiBookOpen,
   FiCheckSquare,
   FiBarChart2,
+  FiCamera,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -41,11 +42,10 @@ function Sidebar() {
   }
 
   if (user?.role === "student") {
-    navItems.push({
-      to: "/student/attendance",
-      label: "Attendance History",
-      icon: <FiBarChart2 size={18} />,
-    });
+    navItems.push(
+      { to: "/student/attendance", label: "Attendance History", icon: <FiBarChart2 size={18} /> },
+      { to: "/student/scan-attendance", label: "Scan Attendance", icon: <FiCamera size={18} /> }
+    );
   }
 
   return (
