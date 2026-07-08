@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const EventRegistration = require("../models/EventRegistration");
 
 // @desc    Create a new event
 // @route   POST /api/events
@@ -29,7 +30,9 @@ const createEvent = async (req, res, next) => {
   }
 };
 
-// @desc    Get all events, optionally filtered by upcoming/past
+// @desc    Get all events, optionally filtered by upcoming/past.
+//          Each event includes its current registration count and,
+//          if requested by an authenticated student, whether they're registered.
 // @route   GET /api/events?filter=upcoming|past
 // @access  Private (any authenticated user)
 const getEvents = async (req, res, next) => {
@@ -49,13 +52,30 @@ const getEvents = async (req, res, next) => {
       .populate("createdBy", "name email")
       .sort({ date: filter === "past" ? -1 : 1 });
 
-    res.status(200).json({ success: true, count: events.length, events });
+    // Attach registration count + "am I registered" flag for each event
+    const eventsWithMeta = await Promise.all(
+      events.map(async (event) => {
+        const registeredCount = await EventRegistration.countDocuments({ event: event._id });
+        const myRegistration = await EventRegistration.findOne({
+          event: event._id,
+          student: req.user._id,
+        });
+
+        return {
+          ...event.toObject(),
+          registeredCount,
+          isRegistered: !!myRegistration,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, count: eventsWithMeta.length, events: eventsWithMeta });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get a single event by ID
+// @desc    Get a single event by ID, including registration count and "am I registered"
 // @route   GET /api/events/:id
 // @access  Private (any authenticated user)
 const getEventById = async (req, res, next) => {
@@ -67,7 +87,16 @@ const getEventById = async (req, res, next) => {
       throw new Error("Event not found");
     }
 
-    res.status(200).json({ success: true, event });
+    const registeredCount = await EventRegistration.countDocuments({ event: event._id });
+    const myRegistration = await EventRegistration.findOne({
+      event: event._id,
+      student: req.user._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      event: { ...event.toObject(), registeredCount, isRegistered: !!myRegistration },
+    });
   } catch (error) {
     next(error);
   }
