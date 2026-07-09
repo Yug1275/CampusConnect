@@ -10,7 +10,6 @@ export const updateEvent = (id, data) => api.put(`/events/${id}`, data);
 
 export const deleteEvent = (id) => api.delete(`/events/${id}`);
 
-// Added in Task 4 - student registration actions
 export const registerForEvent = (eventId) => api.post(`/events/${eventId}/register`);
 
 export const cancelEventRegistration = (eventId) => api.delete(`/events/${eventId}/register`);
@@ -18,3 +17,8 @@ export const cancelEventRegistration = (eventId) => api.delete(`/events/${eventI
 export const getMyRegistrations = () => api.get("/events/my/registrations");
 
 export const getEventRegistrations = (eventId) => api.get(`/events/${eventId}/registrations`);
+
+export const getMyTicket = (eventId) => api.get(`/events/${eventId}/ticket`);
+
+export const verifyEventTicket = (ticketCode) =>
+  api.post("/events/tickets/verify", { ticketCode });

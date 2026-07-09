@@ -1,4 +1,5 @@
-import { FiCalendar, FiMapPin, FiUsers, FiCheck } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { FiCalendar, FiMapPin, FiUsers, FiCheck, FiTag } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 
@@ -8,7 +9,6 @@ function EventCard({ event, onRegister, onCancel, actionLoading }) {
 
   const eventDate = new Date(event.date);
   const isPast = eventDate < new Date();
-
   const isFull = event.capacity && event.registeredCount >= event.capacity;
 
   const formattedDate = eventDate.toLocaleDateString(undefined, {
@@ -70,10 +70,7 @@ function EventCard({ event, onRegister, onCancel, actionLoading }) {
       </h6>
 
       {event.description && (
-        <p
-          style={{ color: colors.textSecondary, fontSize: "0.85rem" }}
-          className="mb-3"
-        >
+        <p style={{ color: colors.textSecondary, fontSize: "0.85rem" }} className="mb-3">
           {event.description.length > 100
             ? `${event.description.slice(0, 100)}...`
             : event.description}
@@ -136,22 +133,37 @@ function EventCard({ event, onRegister, onCancel, actionLoading }) {
             Event Ended
           </button>
         ) : event.isRegistered ? (
-          <button
-            onClick={() => onCancel(event._id)}
-            disabled={actionLoading}
-            className="btn w-100 py-2"
-            style={{
-              backgroundColor: "transparent",
-              color: "#dc2626",
-              border: "1px solid #dc2626",
-              borderRadius: "8px",
-              fontWeight: 600,
-              fontSize: "0.85rem",
-              opacity: actionLoading ? 0.6 : 1,
-            }}
-          >
-            {actionLoading ? "Cancelling..." : "Cancel Registration"}
-          </button>
+          <div className="d-flex flex-column gap-2">
+            <Link
+              to={`/student/events/${event._id}/ticket`}
+              className="btn w-100 text-white py-2 d-flex align-items-center justify-content-center"
+              style={{
+                backgroundColor: "#2563eb",
+                borderRadius: "8px",
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                textDecoration: "none",
+              }}
+            >
+              <FiTag size={14} className="me-2" /> View Ticket
+            </Link>
+            <button
+              onClick={() => onCancel(event._id)}
+              disabled={actionLoading}
+              className="btn w-100 py-2"
+              style={{
+                backgroundColor: "transparent",
+                color: "#dc2626",
+                border: "1px solid #dc2626",
+                borderRadius: "8px",
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                opacity: actionLoading ? 0.6 : 1,
+              }}
+            >
+              {actionLoading ? "Cancelling..." : "Cancel Registration"}
+            </button>
+          </div>
         ) : isFull ? (
           <button
             disabled

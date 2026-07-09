@@ -16,6 +16,8 @@ import AttendanceHistory from "../pages/student/AttendanceHistory";
 import ScanAttendance from "../pages/student/ScanAttendance";
 import EventManagement from "../pages/shared/EventManagement";
 import BrowseEvents from "../pages/student/BrowseEvents";
+import EventTicket from "../pages/student/EventTicket";
+import ScanEventTicket from "../pages/shared/ScanEventTicket";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -119,6 +121,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <BrowseEvents />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/student/events/:eventId/ticket"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <EventTicket />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events/scan-ticket"
+        element={
+          <ProtectedRoute allowedRoles={["faculty", "admin"]}>
+            <ScanEventTicket />
           </ProtectedRoute>
         }
       />

@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const EventRegistration = require("../models/EventRegistration");
 const Event = require("../models/Event");
 
@@ -27,7 +28,6 @@ const registerForEvent = async (req, res, next) => {
       throw new Error("You are already registered for this event");
     }
 
-    // Enforce capacity if one is set
     if (event.capacity) {
       const currentCount = await EventRegistration.countDocuments({ event: req.params.eventId });
       if (currentCount >= event.capacity) {
@@ -36,9 +36,13 @@ const registerForEvent = async (req, res, next) => {
       }
     }
 
+    // Generate the ticket code directly here - no model hook involved
+    const ticketCode = crypto.randomBytes(12).toString("hex");
+
     const registration = await EventRegistration.create({
       event: req.params.eventId,
       student: req.user._id,
+      ticketCode,
     });
 
     res.status(201).json({
@@ -104,9 +108,83 @@ const getEventRegistrations = async (req, res, next) => {
   }
 };
 
+// @desc    Get the logged-in student's ticket (QR payload) for a specific event
+// @route   GET /api/events/:eventId/ticket
+// @access  Private (student)
+const getMyTicket = async (req, res, next) => {
+  try {
+    const registration = await EventRegistration.findOne({
+      event: req.params.eventId,
+      student: req.user._id,
+    }).populate("event", "title date location");
+
+    if (!registration) {
+      res.status(404);
+      throw new Error("You are not registered for this event");
+    }
+
+    res.status(200).json({
+      success: true,
+      ticket: {
+        ticketCode: registration.ticketCode,
+        checkedIn: registration.checkedIn,
+        checkedInAt: registration.checkedInAt,
+        event: registration.event,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify and check in a ticket by its code (organizer scan)
+// @route   POST /api/events/tickets/verify
+// @access  Private/Faculty/Admin
+const verifyTicket = async (req, res, next) => {
+  try {
+    const { ticketCode } = req.body;
+
+    if (!ticketCode) {
+      res.status(400);
+      throw new Error("Ticket code is required");
+    }
+
+    const registration = await EventRegistration.findOne({ ticketCode })
+      .populate("event", "title date")
+      .populate("student", "name email rollNumber");
+
+    if (!registration) {
+      res.status(404);
+      throw new Error("Invalid ticket. No matching registration found");
+    }
+
+    if (registration.checkedIn) {
+      res.status(400);
+      throw new Error(
+        `This ticket was already checked in at ${new Date(registration.checkedInAt).toLocaleTimeString()}`
+      );
+    }
+
+    registration.checkedIn = true;
+    registration.checkedInAt = new Date();
+    await registration.save();
+
+    res.status(200).json({
+      success: true,
+      message: `Checked in: ${registration.student.name} for ${registration.event.title}`,
+      student: registration.student,
+      event: registration.event,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerForEvent,
   cancelRegistration,
   getMyRegistrations,
   getEventRegistrations,
+  getMyTicket,
+  verifyTicket,
 };

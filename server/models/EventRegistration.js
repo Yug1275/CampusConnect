@@ -12,6 +12,19 @@ const eventRegistrationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    ticketCode: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    checkedIn: {
+      type: Boolean,
+      default: false,
+    },
+    checkedInAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
