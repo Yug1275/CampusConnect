@@ -17,6 +17,7 @@ const attendanceRoutes = require("./routes/attendanceRoutes");
 const attendanceSessionRoutes = require("./routes/attendanceSessionRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const eventRegistrationRoutes = require("./routes/eventRegistrationRoutes");
+const clubRoutes = require("./routes/clubRoutes");
 
 connectDB();
 
@@ -47,6 +48,7 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/attendance/qr", attendanceSessionRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/events", eventRegistrationRoutes);
+app.use("/api/clubs", clubRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
