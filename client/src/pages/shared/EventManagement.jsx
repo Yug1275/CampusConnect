@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { FiPlus, FiEdit2, FiTrash2, FiCalendar, FiMapPin, FiUsers } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiTrash2, FiCalendar, FiMapPin, FiUsers, FiEye } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
 import Modal from "../../components/ui/Modal";
 import ConfirmDialog from "../../components/ui/ConfirmDialog";
+import EventRegistrationsModal from "../../components/events/EventRegistrationsModal";
 import {
   getInputStyle,
   getLabelStyle,
@@ -14,7 +15,6 @@ import {
 } from "../../styles/authStyles";
 import { getEvents, createEvent, updateEvent, deleteEvent } from "../../services/eventService";
 
-// Converts an ISO date string to the format <input type="datetime-local"> expects
 const toDatetimeLocalValue = (isoString) => {
   if (!isoString) return "";
   const d = new Date(isoString);
@@ -47,6 +47,9 @@ function EventManagement() {
 
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Registrations modal state
+  const [registrationsEvent, setRegistrationsEvent] = useState(null);
 
   const fetchEvents = async () => {
     setLoading(true);
@@ -165,7 +168,6 @@ function EventManagement() {
         </div>
       )}
 
-      {/* Upcoming / Past tabs */}
       <div className="d-inline-flex mb-3" style={{ backgroundColor: colors.cardBg, borderRadius: "10px", border: `1px solid ${colors.border}`, padding: "4px" }}>
         {["upcoming", "past"].map((tab) => (
           <button
@@ -282,6 +284,14 @@ function EventManagement() {
                       {event.createdBy?.name || "—"}
                     </td>
                     <td className="text-end pe-4" style={{ backgroundColor: "transparent" }}>
+                      <button
+                        onClick={() => setRegistrationsEvent(event)}
+                        className="btn btn-sm border-0 bg-transparent me-1"
+                        style={{ color: colors.textSecondary }}
+                        title="View Registrations"
+                      >
+                        <FiUsers size={16} />
+                      </button>
                       <button
                         onClick={() => openEditModal(event)}
                         className="btn btn-sm border-0 bg-transparent me-1"
@@ -409,6 +419,12 @@ function EventManagement() {
         title="Delete Event?"
         message={`Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
         loading={deleting}
+      />
+
+      <EventRegistrationsModal
+        isOpen={!!registrationsEvent}
+        onClose={() => setRegistrationsEvent(null)}
+        event={registrationsEvent}
       />
     </MainLayout>
   );
