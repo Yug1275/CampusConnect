@@ -1,4 +1,5 @@
 const Club = require("../models/Club");
+const ClubMembership = require("../models/ClubMembership");
 
 // @desc    Create a new club
 // @route   POST /api/clubs
@@ -33,7 +34,8 @@ const createClub = async (req, res, next) => {
   }
 };
 
-// @desc    Get all clubs, optionally filtered by category
+// @desc    Get all clubs, optionally filtered by category.
+//          Each club includes memberCount and, for the logged-in user, isMember.
 // @route   GET /api/clubs?category=
 // @access  Private (any authenticated user)
 const getClubs = async (req, res, next) => {
@@ -47,13 +49,29 @@ const getClubs = async (req, res, next) => {
       .populate("createdBy", "name email")
       .sort({ name: 1 });
 
-    res.status(200).json({ success: true, count: clubs.length, clubs });
+    const clubsWithMeta = await Promise.all(
+      clubs.map(async (club) => {
+        const memberCount = await ClubMembership.countDocuments({ club: club._id });
+        const myMembership = await ClubMembership.findOne({
+          club: club._id,
+          student: req.user._id,
+        });
+
+        return {
+          ...club.toObject(),
+          memberCount,
+          isMember: !!myMembership,
+        };
+      })
+    );
+
+    res.status(200).json({ success: true, count: clubsWithMeta.length, clubs: clubsWithMeta });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get a single club by ID
+// @desc    Get a single club by ID, including memberCount and isMember
 // @route   GET /api/clubs/:id
 // @access  Private (any authenticated user)
 const getClubById = async (req, res, next) => {
@@ -65,7 +83,16 @@ const getClubById = async (req, res, next) => {
       throw new Error("Club not found");
     }
 
-    res.status(200).json({ success: true, club });
+    const memberCount = await ClubMembership.countDocuments({ club: club._id });
+    const myMembership = await ClubMembership.findOne({
+      club: club._id,
+      student: req.user._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      club: { ...club.toObject(), memberCount, isMember: !!myMembership },
+    });
   } catch (error) {
     next(error);
   }

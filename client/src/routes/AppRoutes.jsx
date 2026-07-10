@@ -11,6 +11,7 @@ import DepartmentDetail from "../pages/admin/DepartmentDetail";
 import StudentManagement from "../pages/admin/StudentManagement";
 import FacultyManagement from "../pages/admin/FacultyManagement";
 import SubjectManagement from "../pages/admin/SubjectManagement";
+import ClubManagement from "../pages/admin/ClubManagement";
 import MarkAttendance from "../pages/faculty/MarkAttendance";
 import AttendanceHistory from "../pages/student/AttendanceHistory";
 import ScanAttendance from "../pages/student/ScanAttendance";
@@ -81,6 +82,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <SubjectManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/clubs"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <ClubManagement />
           </ProtectedRoute>
         }
       />
