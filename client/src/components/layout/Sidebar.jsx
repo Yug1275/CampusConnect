@@ -49,7 +49,8 @@ function Sidebar() {
     navItems.push(
       { to: "/student/attendance", label: "Attendance History", icon: <FiBarChart2 size={18} /> },
       { to: "/student/scan-attendance", label: "Scan Attendance", icon: <FiCamera size={18} /> },
-      { to: "/student/events", label: "Events", icon: <FiCalendar size={18} /> }
+      { to: "/student/events", label: "Events", icon: <FiCalendar size={18} /> },
+      { to: "/student/clubs", label: "Clubs", icon: <FiAward size={18} /> }
     );
   }
 
