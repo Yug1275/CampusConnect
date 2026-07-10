@@ -12,6 +12,7 @@ import {
   FiCalendar,
   FiTag,
   FiAward,
+  FiMapPin,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -33,7 +34,8 @@ function Sidebar() {
       { to: "/admin/students", label: "Students", icon: <FiUsers size={18} /> },
       { to: "/admin/faculty", label: "Faculty", icon: <FiUserCheck size={18} /> },
       { to: "/admin/subjects", label: "Subjects", icon: <FiBookOpen size={18} /> },
-      { to: "/admin/clubs", label: "Clubs", icon: <FiAward size={18} /> }
+      { to: "/admin/clubs", label: "Clubs", icon: <FiAward size={18} /> },
+      { to: "/admin/locations", label: "Locations", icon: <FiMapPin size={18} /> }
     );
   }
 
