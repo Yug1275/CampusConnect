@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward } from "react-icons/fi";
+import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward, FiUsers } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
@@ -7,6 +7,8 @@ import MainLayout from "../../components/layout/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
 import { getMyAttendanceSummary } from "../../services/attendanceService";
+import { getMyRegistrations } from "../../services/eventService";
+import { getMyClubs } from "../../services/clubService";
 
 function StudentDashboard() {
   const { user } = useAuth();
@@ -15,6 +17,12 @@ function StudentDashboard() {
 
   const [attendancePercentage, setAttendancePercentage] = useState(null);
   const [loadingAttendance, setLoadingAttendance] = useState(true);
+
+  const [upcomingEventsList, setUpcomingEventsList] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
+  const [clubCount, setClubCount] = useState(null);
+  const [loadingClubs, setLoadingClubs] = useState(true);
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -30,15 +38,50 @@ function StudentDashboard() {
     fetchAttendance();
   }, []);
 
-  // Placeholder data - Today's Classes and Upcoming Events remain static.
-  // Today's Classes requires a Timetable module (not yet built).
-  // Upcoming Events requires the Events module, arriving in Phase 6.
-  const upcomingEvents = [
-    { primary: "Coding Club Hackathon", secondary: "Oct 12, 10:00 AM", tag: "Registered" },
-    { primary: "Annual Sports Meet", secondary: "Oct 18, 8:00 AM", tag: "Open" },
-    { primary: "Guest Lecture: AI in Industry", secondary: "Oct 22, 2:00 PM", tag: "Open" },
-  ];
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await getMyRegistrations();
+        const now = new Date();
+        const upcoming = response.data.registrations
+          .filter((reg) => reg.event && new Date(reg.event.date) >= now)
+          .sort((a, b) => new Date(a.event.date) - new Date(b.event.date))
+          .slice(0, 5)
+          .map((reg) => ({
+            primary: reg.event.title,
+            secondary: new Date(reg.event.date).toLocaleString(undefined, {
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            tag: "Registered",
+          }));
+        setUpcomingEventsList(upcoming);
+      } catch (err) {
+        setUpcomingEventsList([]);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    fetchEvents();
+  }, []);
 
+  useEffect(() => {
+    const fetchClubs = async () => {
+      try {
+        const response = await getMyClubs();
+        setClubCount(response.data.count);
+      } catch (err) {
+        setClubCount(null);
+      } finally {
+        setLoadingClubs(false);
+      }
+    };
+    fetchClubs();
+  }, []);
+
+  // Static placeholder - Today's Classes requires a Timetable module (not yet built)
   const todaysClasses = [
     { primary: "Data Structures", secondary: "9:00 AM - 10:00 AM, Room 204" },
     { primary: "Database Management Systems", secondary: "10:15 AM - 11:15 AM, Room 110" },
@@ -50,6 +93,7 @@ function StudentDashboard() {
     { primary: "Library hours extended for exam week", secondary: "Posted by Faculty · 4 days ago" },
   ];
 
+  // Static placeholder - real Achievement Badges arrive in Phase 10
   const badges = ["High Attendance", "Top Performer", "Event Participant"];
 
   const attendanceDisplay = loadingAttendance
@@ -57,9 +101,11 @@ function StudentDashboard() {
     : attendancePercentage !== null
     ? `${attendancePercentage}%`
     : "—";
-
   const attendanceAccent =
     attendancePercentage !== null && attendancePercentage < 75 ? "#f59e0b" : "#16a34a";
+
+  const eventsDisplay = loadingEvents ? "…" : upcomingEventsList.length;
+  const clubsDisplay = loadingClubs ? "…" : clubCount !== null ? clubCount : "—";
 
   return (
     <MainLayout>
@@ -72,7 +118,7 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Now wired to real data via Task 5's attendance summary API */}
+          {/* Wired to real data - Phase 5 */}
           <StatCard
             icon={<FiCheckCircle size={20} />}
             label="Attendance"
@@ -81,11 +127,11 @@ function StudentDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - Events module arrives in Phase 6 */}
+          {/* Now wired to real data - registered upcoming events (Phase 6) */}
           <StatCard
             icon={<FiCalendar size={20} />}
             label="Upcoming Events"
-            value={upcomingEvents.length}
+            value={eventsDisplay}
             accentColor="#2563eb"
           />
         </div>
@@ -99,11 +145,11 @@ function StudentDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - Achievement Badges arrive in Phase 10 */}
+          {/* Now wired to real data - club memberships (Phase 6) */}
           <StatCard
-            icon={<FiAward size={20} />}
-            label="Badges Earned"
-            value={badges.length}
+            icon={<FiUsers size={20} />}
+            label="My Clubs"
+            value={clubsDisplay}
             accentColor="#f59e0b"
           />
         </div>
@@ -114,7 +160,11 @@ function StudentDashboard() {
           <ListCard title="Today's Classes" items={todaysClasses} />
         </div>
         <div className="col-12 col-lg-6">
-          <ListCard title="Upcoming Events" items={upcomingEvents} />
+          <ListCard
+            title="Upcoming Events"
+            items={upcomingEventsList}
+            emptyText="You haven't registered for any upcoming events."
+          />
         </div>
       </div>
 

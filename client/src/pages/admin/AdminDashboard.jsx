@@ -8,6 +8,7 @@ import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
 import ChartPlaceholder from "../../components/dashboard/ChartPlaceholder";
 import { getAdminSummary } from "../../services/adminService";
+import { getEvents } from "../../services/eventService";
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -17,13 +18,15 @@ function AdminDashboard() {
   const [summary, setSummary] = useState(null);
   const [loadingSummary, setLoadingSummary] = useState(true);
 
+  const [upcomingEventCount, setUpcomingEventCount] = useState(null);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+
   useEffect(() => {
     const fetchSummary = async () => {
       try {
         const response = await getAdminSummary();
         setSummary(response.data.summary);
       } catch (err) {
-        // Non-blocking - stat cards fall back to "—" below if this fails
         setSummary(null);
       } finally {
         setLoadingSummary(false);
@@ -32,7 +35,20 @@ function AdminDashboard() {
     fetchSummary();
   }, []);
 
-  // Placeholder data - will be replaced with real API data in later phases
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await getEvents({ filter: "upcoming" });
+        setUpcomingEventCount(response.data.count);
+      } catch (err) {
+        setUpcomingEventCount(null);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    fetchEvents();
+  }, []);
+
   const recentActivities = [
     { primary: "New student registered - Riya Shah", secondary: "5 minutes ago" },
     { primary: "Faculty added to Computer Science dept.", secondary: "1 hour ago" },
@@ -46,6 +62,12 @@ function AdminDashboard() {
     return value.toLocaleString();
   };
 
+  const eventsDisplay = loadingEvents
+    ? "…"
+    : upcomingEventCount !== null
+    ? upcomingEventCount
+    : "—";
+
   return (
     <MainLayout>
       <div className="mb-4">
@@ -55,7 +77,6 @@ function AdminDashboard() {
         <p style={{ color: colors.textSecondary }}>Here's an overview of the entire campus.</p>
       </div>
 
-      {/* Stat cards grid - Students, Faculty, Departments now wired to real data */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
           <StatCard
@@ -82,17 +103,16 @@ function AdminDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Active Events remains a static placeholder - Events module arrives in Phase 6 */}
+          {/* Now wired to real data - live upcoming events count (Phase 6) */}
           <StatCard
             icon={<FiCalendar size={20} />}
             label="Active Events"
-            value="7"
+            value={eventsDisplay}
             accentColor="#f59e0b"
           />
         </div>
       </div>
 
-      {/* Chart placeholders */}
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
           <ChartPlaceholder title="Attendance Analytics" />
@@ -102,7 +122,6 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Recent activities */}
       <div className="row g-3 mb-4">
         <div className="col-12">
           <ListCard title="Recent Activities" items={recentActivities} />

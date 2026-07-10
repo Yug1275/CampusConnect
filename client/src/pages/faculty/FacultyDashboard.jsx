@@ -7,6 +7,7 @@ import MainLayout from "../../components/layout/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
 import { getFacultyAttendanceSummary } from "../../services/attendanceService";
+import { getEvents } from "../../services/eventService";
 
 function FacultyDashboard() {
   const { user } = useAuth();
@@ -15,6 +16,9 @@ function FacultyDashboard() {
 
   const [attendanceAvg, setAttendanceAvg] = useState(null);
   const [loadingAttendance, setLoadingAttendance] = useState(true);
+
+  const [myUpcomingEvents, setMyUpcomingEvents] = useState([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -30,8 +34,35 @@ function FacultyDashboard() {
     fetchSummary();
   }, []);
 
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await getEvents({ filter: "upcoming" });
+        const mine = response.data.events
+          .filter((ev) => ev.createdBy?._id === user._id)
+          .slice(0, 5)
+          .map((ev) => ({
+            primary: ev.title,
+            secondary: new Date(ev.date).toLocaleString(undefined, {
+              day: "2-digit",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            tag: "Organizing",
+          }));
+        setMyUpcomingEvents(mine);
+      } catch (err) {
+        setMyUpcomingEvents([]);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    if (user?._id) fetchEvents();
+  }, [user]);
+
   // Static placeholders - Today's Classes requires a Timetable module (not yet built),
-  // Pending Tasks/Upcoming Events require modules from later phases.
+  // Pending Tasks require a Tasks module from a later phase.
   const todaysClasses = [
     { primary: "Data Structures - CSE 2A", secondary: "9:00 AM - 10:00 AM, Room 204" },
     { primary: "Database Management Systems - CSE 2B", secondary: "11:00 AM - 12:00 PM, Room 110" },
@@ -49,16 +80,13 @@ function FacultyDashboard() {
     { primary: "Faculty meeting rescheduled to Oct 14", secondary: "Posted by Admin · 3 days ago" },
   ];
 
-  const upcomingEvents = [
-    { primary: "Annual Sports Meet", secondary: "Oct 18, 8:00 AM", tag: "Organizing" },
-    { primary: "Guest Lecture: AI in Industry", secondary: "Oct 22, 2:00 PM", tag: "Attending" },
-  ];
-
   const attendanceDisplay = loadingAttendance
     ? "…"
     : attendanceAvg !== null
     ? `${attendanceAvg}% avg`
     : "—";
+
+  const eventsDisplay = loadingEvents ? "…" : myUpcomingEvents.length;
 
   return (
     <MainLayout>
@@ -80,7 +108,7 @@ function FacultyDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Now wired to real data - average attendance across this faculty's subjects */}
+          {/* Wired to real data - Phase 5 */}
           <StatCard
             icon={<FiCheckCircle size={20} />}
             label="Attendance Summary"
@@ -98,11 +126,11 @@ function FacultyDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - Events module arrives in Phase 6 */}
+          {/* Now wired to real data - events this faculty member created (Phase 6) */}
           <StatCard
             icon={<FiCalendar size={20} />}
             label="Upcoming Events"
-            value={upcomingEvents.length}
+            value={eventsDisplay}
             accentColor="#2563eb"
           />
         </div>
@@ -122,7 +150,11 @@ function FacultyDashboard() {
           <ListCard title="Recent Announcements" items={recentAnnouncements} />
         </div>
         <div className="col-12 col-lg-6">
-          <ListCard title="Upcoming Events" items={upcomingEvents} />
+          <ListCard
+            title="Upcoming Events"
+            items={myUpcomingEvents}
+            emptyText="You haven't organized any upcoming events."
+          />
         </div>
       </div>
     </MainLayout>
