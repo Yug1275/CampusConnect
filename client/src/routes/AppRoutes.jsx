@@ -21,6 +21,7 @@ import BrowseEvents from "../pages/student/BrowseEvents";
 import EventTicket from "../pages/student/EventTicket";
 import ScanEventTicket from "../pages/shared/ScanEventTicket";
 import BrowseClubs from "../pages/student/BrowseClubs";
+import CampusMap from "../pages/shared/CampusMap";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -164,6 +165,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <BrowseClubs />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/campus-map"
+        element={
+          <ProtectedRoute>
+            <CampusMap />
           </ProtectedRoute>
         }
       />

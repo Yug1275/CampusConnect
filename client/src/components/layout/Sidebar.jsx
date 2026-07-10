@@ -13,6 +13,7 @@ import {
   FiTag,
   FiAward,
   FiMapPin,
+  FiMap,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -55,6 +56,9 @@ function Sidebar() {
       { to: "/student/clubs", label: "Clubs", icon: <FiAward size={18} /> }
     );
   }
+
+  // Campus Map is accessible to every role
+  navItems.push({ to: "/campus-map", label: "Campus Map", icon: <FiMap size={18} /> });
 
   return (
     <aside
