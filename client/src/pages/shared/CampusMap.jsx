@@ -6,10 +6,9 @@ import { FiMapPin } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
+import LocationDetailPanel from "../../components/map/LocationDetailPanel";
 import { getLocations } from "../../services/locationService";
 
-// Fix Leaflet's default marker icons - a well-known issue where bundlers
-// (Vite/Webpack) don't correctly resolve the image paths Leaflet expects by default.
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
@@ -30,31 +29,28 @@ const categoryColors = {
   Other: "#64748b",
 };
 
-// Creates a custom colored circular marker icon per category, using a
-// divIcon (plain HTML/CSS) instead of an image file - avoids managing
-// ten separate marker image assets.
-const createCategoryIcon = (category) => {
+const createCategoryIcon = (category, isSelected) => {
   const color = categoryColors[category] || categoryColors.Other;
+  const size = isSelected ? 34 : 26;
   return L.divIcon({
     className: "custom-marker-icon",
     html: `
       <div style="
         background-color: ${color};
-        width: 26px;
-        height: 26px;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
         border: 2px solid #ffffff;
         box-shadow: 0 2px 6px rgba(0,0,0,0.3);
       "></div>
     `,
-    iconSize: [26, 26],
-    iconAnchor: [13, 26],
-    popupAnchor: [0, -26],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size],
+    popupAnchor: [0, -size],
   });
 };
 
-// Default fallback center if no locations exist yet (a neutral placeholder)
 const DEFAULT_CENTER = [23.1795, 72.6413];
 
 function CampusMap() {
@@ -64,6 +60,7 @@ function CampusMap() {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -86,6 +83,12 @@ function CampusMap() {
           locations.reduce((sum, loc) => sum + loc.longitude, 0) / locations.length,
         ]
       : DEFAULT_CENTER;
+
+  const handleSetDestination = (location) => {
+    // Task 5 will read this via sessionStorage/navigation state to pre-fill the "To" field
+    sessionStorage.setItem("campusconnect-nav-destination", JSON.stringify(location));
+    window.location.href = "/campus-navigation";
+  };
 
   return (
     <MainLayout>
@@ -116,71 +119,105 @@ function CampusMap() {
           </p>
         </div>
       ) : (
-        <div
-          style={{
-            borderRadius: "14px",
-            overflow: "hidden",
-            border: `1px solid ${colors.border}`,
-            boxShadow: colors.shadow,
-          }}
-        >
-          <MapContainer
-            center={mapCenter}
-            zoom={16}
-            style={{ height: "600px", width: "100%" }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-
-            {locations.map((location) => (
-              <Marker
-                key={location._id}
-                position={[location.latitude, location.longitude]}
-                icon={createCategoryIcon(location.category)}
+        <div className="row g-3">
+          <div className={selectedLocation ? "col-12 col-lg-8" : "col-12"}>
+            <div
+              style={{
+                borderRadius: "14px",
+                overflow: "hidden",
+                border: `1px solid ${colors.border}`,
+                boxShadow: colors.shadow,
+              }}
+            >
+              <MapContainer
+                center={mapCenter}
+                zoom={16}
+                style={{ height: "600px", width: "100%" }}
               >
-                <Popup>
-                  <div style={{ minWidth: "160px" }}>
-                    <strong>{location.name}</strong>
-                    <br />
-                    <span style={{ fontSize: "0.82rem", color: "#64748b" }}>
-                      {location.category}
-                    </span>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
-        </div>
-      )}
-
-      {/* Category legend */}
-      {!loading && locations.length > 0 && (
-        <div
-          className="mt-3 p-3 d-flex flex-wrap gap-3"
-          style={{
-            backgroundColor: colors.cardBg,
-            borderRadius: "12px",
-            border: `1px solid ${colors.border}`,
-          }}
-        >
-          {Object.entries(categoryColors)
-            .filter(([cat]) => locations.some((loc) => loc.category === cat))
-            .map(([cat, color]) => (
-              <div key={cat} className="d-flex align-items-center" style={{ fontSize: "0.8rem" }}>
-                <span
-                  className="d-inline-block me-2"
-                  style={{
-                    width: "10px",
-                    height: "10px",
-                    borderRadius: "50%",
-                    backgroundColor: color,
-                  }}
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <span style={{ color: colors.textSecondary }}>{cat}</span>
-              </div>
-            ))}
+
+                {locations.map((location) => (
+                  <Marker
+                    key={location._id}
+                    position={[location.latitude, location.longitude]}
+                    icon={createCategoryIcon(
+                      location.category,
+                      selectedLocation?._id === location._id
+                    )}
+                    eventHandlers={{
+                      click: () => setSelectedLocation(location),
+                    }}
+                  >
+                    <Popup>
+                      <div style={{ minWidth: "140px" }}>
+                        <strong>{location.name}</strong>
+                        <br />
+                        <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                          {location.category}
+                        </span>
+                        <br />
+                        <button
+                          onClick={() => setSelectedLocation(location)}
+                          style={{
+                            marginTop: "6px",
+                            background: "none",
+                            border: "none",
+                            color: "#2563eb",
+                            fontWeight: 600,
+                            fontSize: "0.8rem",
+                            cursor: "pointer",
+                            padding: 0,
+                          }}
+                        >
+                          View Details →
+                        </button>
+                      </div>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+            </div>
+
+            {/* Category legend */}
+            <div
+              className="mt-3 p-3 d-flex flex-wrap gap-3"
+              style={{
+                backgroundColor: colors.cardBg,
+                borderRadius: "12px",
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              {Object.entries(categoryColors)
+                .filter(([cat]) => locations.some((loc) => loc.category === cat))
+                .map(([cat, color]) => (
+                  <div key={cat} className="d-flex align-items-center" style={{ fontSize: "0.8rem" }}>
+                    <span
+                      className="d-inline-block me-2"
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        backgroundColor: color,
+                      }}
+                    />
+                    <span style={{ color: colors.textSecondary }}>{cat}</span>
+                  </div>
+                ))}
+            </div>
+          </div>
+
+          {selectedLocation && (
+            <div className="col-12 col-lg-4" style={{ height: "600px" }}>
+              <LocationDetailPanel
+                location={selectedLocation}
+                onClose={() => setSelectedLocation(null)}
+                onSetDestination={handleSetDestination}
+              />
+            </div>
+          )}
         </div>
       )}
     </MainLayout>
