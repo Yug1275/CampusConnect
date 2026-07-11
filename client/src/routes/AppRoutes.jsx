@@ -22,6 +22,7 @@ import EventTicket from "../pages/student/EventTicket";
 import ScanEventTicket from "../pages/shared/ScanEventTicket";
 import BrowseClubs from "../pages/student/BrowseClubs";
 import CampusMap from "../pages/shared/CampusMap";
+import CampusNavigation from "../pages/shared/CampusNavigation";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -173,6 +174,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CampusMap />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/campus-navigation"
+        element={
+          <ProtectedRoute>
+            <CampusNavigation />
           </ProtectedRoute>
         }
       />

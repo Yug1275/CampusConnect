@@ -14,6 +14,7 @@ import {
   FiAward,
   FiMapPin,
   FiMap,
+  FiNavigation,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -57,8 +58,10 @@ function Sidebar() {
     );
   }
 
-  // Campus Map is accessible to every role
-  navItems.push({ to: "/campus-map", label: "Campus Map", icon: <FiMap size={18} /> });
+  navItems.push(
+    { to: "/campus-map", label: "Campus Map", icon: <FiMap size={18} /> },
+    { to: "/campus-navigation", label: "Navigation", icon: <FiNavigation size={18} /> }
+  );
 
   return (
     <aside
