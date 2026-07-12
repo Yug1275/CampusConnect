@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { FiMapPin } from "react-icons/fi";
+import { FiMapPin, FiX } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
 import LocationDetailPanel from "../../components/map/LocationDetailPanel";
+import SearchBar from "../../components/ui/SearchBar";
 import { getLocations } from "../../services/locationService";
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -53,6 +54,19 @@ const createCategoryIcon = (category, isSelected) => {
 
 const DEFAULT_CENTER = [23.1795, 72.6413];
 
+// Flies the map to a specific location whenever `flyTarget` changes
+function FlyToLocation({ flyTarget }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (flyTarget) {
+      map.flyTo([flyTarget.latitude, flyTarget.longitude], 18, { duration: 1 });
+    }
+  }, [flyTarget, map]);
+
+  return null;
+}
+
 function CampusMap() {
   const { theme } = useTheme();
   const colors = themeColors[theme];
@@ -61,6 +75,9 @@ function CampusMap() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [flyTarget, setFlyTarget] = useState(null);
 
   useEffect(() => {
     const fetchLocations = async () => {
@@ -85,9 +102,23 @@ function CampusMap() {
       : DEFAULT_CENTER;
 
   const handleSetDestination = (location) => {
-    // Task 5 will read this via sessionStorage/navigation state to pre-fill the "To" field
     sessionStorage.setItem("campusconnect-nav-destination", JSON.stringify(location));
     window.location.href = "/campus-navigation";
+  };
+
+  // Client-side filter - matches against name or category, case-insensitive
+  const searchResults = searchQuery
+    ? locations.filter(
+        (loc) =>
+          loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          loc.category.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
+
+  const handleSelectSearchResult = (location) => {
+    setSelectedLocation(location);
+    setFlyTarget(location);
+    setSearchQuery("");
   };
 
   return (
@@ -119,106 +150,166 @@ function CampusMap() {
           </p>
         </div>
       ) : (
-        <div className="row g-3">
-          <div className={selectedLocation ? "col-12 col-lg-8" : "col-12"}>
-            <div
-              style={{
-                borderRadius: "14px",
-                overflow: "hidden",
-                border: `1px solid ${colors.border}`,
-                boxShadow: colors.shadow,
-              }}
-            >
-              <MapContainer
-                center={mapCenter}
-                zoom={16}
-                style={{ height: "600px", width: "100%" }}
+        <>
+          {/* Search bar with live results dropdown */}
+          <div className="position-relative mb-3" style={{ maxWidth: "420px" }}>
+            <SearchBar
+              placeholder="Search locations by name or category..."
+              onSearch={setSearchQuery}
+            />
+
+            {searchQuery && (
+              <div
+                className="position-absolute w-100 mt-1"
+                style={{
+                  backgroundColor: colors.cardBg,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "10px",
+                  boxShadow: colors.shadow,
+                  zIndex: 500,
+                  maxHeight: "260px",
+                  overflowY: "auto",
+                }}
               >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-
-                {locations.map((location) => (
-                  <Marker
-                    key={location._id}
-                    position={[location.latitude, location.longitude]}
-                    icon={createCategoryIcon(
-                      location.category,
-                      selectedLocation?._id === location._id
-                    )}
-                    eventHandlers={{
-                      click: () => setSelectedLocation(location),
-                    }}
-                  >
-                    <Popup>
-                      <div style={{ minWidth: "140px" }}>
-                        <strong>{location.name}</strong>
-                        <br />
-                        <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                          {location.category}
-                        </span>
-                        <br />
-                        <button
-                          onClick={() => setSelectedLocation(location)}
-                          style={{
-                            marginTop: "6px",
-                            background: "none",
-                            border: "none",
-                            color: "#2563eb",
-                            fontWeight: 600,
-                            fontSize: "0.8rem",
-                            cursor: "pointer",
-                            padding: 0,
-                          }}
-                        >
-                          View Details →
-                        </button>
+                {searchResults.length === 0 ? (
+                  <p className="px-3 py-3 mb-0" style={{ color: colors.textMuted, fontSize: "0.85rem" }}>
+                    No locations match "{searchQuery}"
+                  </p>
+                ) : (
+                  searchResults.map((loc) => (
+                    <button
+                      key={loc._id}
+                      onClick={() => handleSelectSearchResult(loc)}
+                      className="btn w-100 text-start d-flex align-items-center px-3 py-2 border-0 bg-transparent"
+                      style={{ borderBottom: `1px solid ${colors.border}` }}
+                    >
+                      <span
+                        className="d-inline-block me-2 flex-shrink-0"
+                        style={{
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          backgroundColor: categoryColors[loc.category] || categoryColors.Other,
+                        }}
+                      />
+                      <div>
+                        <p className="mb-0" style={{ color: colors.textPrimary, fontWeight: 600, fontSize: "0.87rem" }}>
+                          {loc.name}
+                        </p>
+                        <p className="mb-0" style={{ color: colors.textMuted, fontSize: "0.75rem" }}>
+                          {loc.category}
+                        </p>
                       </div>
-                    </Popup>
-                  </Marker>
-                ))}
-              </MapContainer>
-            </div>
-
-            {/* Category legend */}
-            <div
-              className="mt-3 p-3 d-flex flex-wrap gap-3"
-              style={{
-                backgroundColor: colors.cardBg,
-                borderRadius: "12px",
-                border: `1px solid ${colors.border}`,
-              }}
-            >
-              {Object.entries(categoryColors)
-                .filter(([cat]) => locations.some((loc) => loc.category === cat))
-                .map(([cat, color]) => (
-                  <div key={cat} className="d-flex align-items-center" style={{ fontSize: "0.8rem" }}>
-                    <span
-                      className="d-inline-block me-2"
-                      style={{
-                        width: "10px",
-                        height: "10px",
-                        borderRadius: "50%",
-                        backgroundColor: color,
-                      }}
-                    />
-                    <span style={{ color: colors.textSecondary }}>{cat}</span>
-                  </div>
-                ))}
-            </div>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
-          {selectedLocation && (
-            <div className="col-12 col-lg-4" style={{ height: "600px" }}>
-              <LocationDetailPanel
-                location={selectedLocation}
-                onClose={() => setSelectedLocation(null)}
-                onSetDestination={handleSetDestination}
-              />
+          <div className="row g-3">
+            <div className={selectedLocation ? "col-12 col-lg-8" : "col-12"}>
+              <div
+                style={{
+                  borderRadius: "14px",
+                  overflow: "hidden",
+                  border: `1px solid ${colors.border}`,
+                  boxShadow: colors.shadow,
+                }}
+              >
+                <MapContainer
+                  center={mapCenter}
+                  zoom={16}
+                  style={{ height: "600px", width: "100%" }}
+                >
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+
+                  {locations.map((location) => (
+                    <Marker
+                      key={location._id}
+                      position={[location.latitude, location.longitude]}
+                      icon={createCategoryIcon(
+                        location.category,
+                        selectedLocation?._id === location._id
+                      )}
+                      eventHandlers={{
+                        click: () => setSelectedLocation(location),
+                      }}
+                    >
+                      <Popup>
+                        <div style={{ minWidth: "140px" }}>
+                          <strong>{location.name}</strong>
+                          <br />
+                          <span style={{ fontSize: "0.8rem", color: "#64748b" }}>
+                            {location.category}
+                          </span>
+                          <br />
+                          <button
+                            onClick={() => setSelectedLocation(location)}
+                            style={{
+                              marginTop: "6px",
+                              background: "none",
+                              border: "none",
+                              color: "#2563eb",
+                              fontWeight: 600,
+                              fontSize: "0.8rem",
+                              cursor: "pointer",
+                              padding: 0,
+                            }}
+                          >
+                            View Details →
+                          </button>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ))}
+
+                  <FlyToLocation flyTarget={flyTarget} />
+                </MapContainer>
+              </div>
+
+              {/* Category legend */}
+              <div
+                className="mt-3 p-3 d-flex flex-wrap gap-3"
+                style={{
+                  backgroundColor: colors.cardBg,
+                  borderRadius: "12px",
+                  border: `1px solid ${colors.border}`,
+                }}
+              >
+                {Object.entries(categoryColors)
+                  .filter(([cat]) => locations.some((loc) => loc.category === cat))
+                  .map(([cat, color]) => (
+                    <div key={cat} className="d-flex align-items-center" style={{ fontSize: "0.8rem" }}>
+                      <span
+                        className="d-inline-block me-2"
+                        style={{
+                          width: "10px",
+                          height: "10px",
+                          borderRadius: "50%",
+                          backgroundColor: color,
+                        }}
+                      />
+                      <span style={{ color: colors.textSecondary }}>{cat}</span>
+                    </div>
+                  ))}
+              </div>
             </div>
-          )}
-        </div>
+
+            {selectedLocation && (
+              <div className="col-12 col-lg-4" style={{ height: "600px" }}>
+                <LocationDetailPanel
+                  location={selectedLocation}
+                  onClose={() => setSelectedLocation(null)}
+                  onSetDestination={handleSetDestination}
+                />
+              </div>
+            )}
+          </div>
+        </>
       )}
     </MainLayout>
   );
