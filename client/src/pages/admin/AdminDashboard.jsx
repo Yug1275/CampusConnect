@@ -1,3 +1,4 @@
+import CampusMapCard from "../../components/dashboard/CampusMapCard";
 import { useState, useEffect } from "react";
 import { FiUsers, FiUserCheck, FiGrid, FiCalendar } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
@@ -127,6 +128,7 @@ function AdminDashboard() {
           <ListCard title="Recent Activities" items={recentActivities} />
         </div>
       </div>
+      <CampusMapCard />
     </MainLayout>
   );
 }

@@ -1,3 +1,4 @@
+import CampusMapCard from "../../components/dashboard/CampusMapCard";
 import { useState, useEffect } from "react";
 import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward, FiUsers } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
@@ -208,6 +209,7 @@ function StudentDashboard() {
           </div>
         </div>
       </div>
+      <CampusMapCard />
     </MainLayout>
   );
 }
