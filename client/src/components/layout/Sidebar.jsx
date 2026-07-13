@@ -69,6 +69,8 @@ function Sidebar() {
     <aside
       style={{
         width: "240px",
+        flex: "0 0 240px",
+        flexShrink: 0,
         backgroundColor: colors.sidebarBg,
         borderRight: `1px solid ${colors.border}`,
         minHeight: "100%",

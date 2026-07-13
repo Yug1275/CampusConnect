@@ -17,7 +17,9 @@ function MainLayout({ children }) {
 
       <div className="d-flex flex-grow-1">
         <Sidebar />
-        <main className="flex-grow-1 p-4 p-md-5">{children}</main>
+        <main className="flex-grow-1 p-4 p-md-5" style={{ minWidth: 0 }}>
+          {children}
+        </main>
       </div>
 
       <Footer />
