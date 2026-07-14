@@ -47,8 +47,12 @@ function Sidebar() {
       { to: "/faculty/attendance", label: "Mark Attendance", icon: <FiCheckSquare size={18} /> },
       { to: "/events/manage", label: "Manage Events", icon: <FiCalendar size={18} /> },
       { to: "/events/scan-ticket", label: "Scan Event Ticket", icon: <FiTag size={18} /> },
-      { to: "/announcements/manage", label: "Announcements", icon: <FiBell size={18} /> }
+      { to: "/announcements/manage", label: "Manage Announcements", icon: <FiBell size={18} /> }
     );
+  }
+
+  if (user?.role === "faculty") {
+    navItems.push({ to: "/announcements", label: "Announcements Feed", icon: <FiBell size={18} /> });
   }
 
   if (user?.role === "student") {
@@ -56,7 +60,8 @@ function Sidebar() {
       { to: "/student/attendance", label: "Attendance History", icon: <FiBarChart2 size={18} /> },
       { to: "/student/scan-attendance", label: "Scan Attendance", icon: <FiCamera size={18} /> },
       { to: "/student/events", label: "Events", icon: <FiCalendar size={18} /> },
-      { to: "/student/clubs", label: "Clubs", icon: <FiAward size={18} /> }
+      { to: "/student/clubs", label: "Clubs", icon: <FiAward size={18} /> },
+      { to: "/announcements", label: "Announcements", icon: <FiBell size={18} /> }
     );
   }
 
@@ -69,8 +74,6 @@ function Sidebar() {
     <aside
       style={{
         width: "240px",
-        flex: "0 0 240px",
-        flexShrink: 0,
         backgroundColor: colors.sidebarBg,
         borderRight: `1px solid ${colors.border}`,
         minHeight: "100%",

@@ -24,6 +24,7 @@ import BrowseClubs from "../pages/student/BrowseClubs";
 import CampusMap from "../pages/shared/CampusMap";
 import CampusNavigation from "../pages/shared/CampusNavigation";
 import AnnouncementManagement from "../pages/shared/AnnouncementManagement";
+import AnnouncementFeed from "../pages/shared/AnnouncementFeed";
 import ProtectedRoute from "./ProtectedRoute";
 
 function AppRoutes() {
@@ -191,6 +192,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["faculty", "admin"]}>
             <AnnouncementManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/announcements"
+        element={
+          <ProtectedRoute allowedRoles={["student", "faculty"]}>
+            <AnnouncementFeed />
           </ProtectedRoute>
         }
       />
