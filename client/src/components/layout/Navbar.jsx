@@ -2,6 +2,7 @@ import { FiLogOut, FiUser, FiSun, FiMoon } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
+import GlobalSearch from "./GlobalSearch";
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -17,14 +18,15 @@ function Navbar() {
         borderBottom: `1px solid ${colors.navbarBorder}`,
       }}
     >
-      <div className="d-flex align-items-center">
+      <div className="d-flex align-items-center" style={{ gap: "24px" }}>
         <span style={{ fontSize: "1.25rem", fontWeight: 700, color: "#fff", letterSpacing: "0.3px" }}>
           CampusConnect
         </span>
+
+        <GlobalSearch />
       </div>
 
       <div className="d-flex align-items-center">
-        {/* Theme toggle */}
         <button
           onClick={toggleTheme}
           className="btn d-flex align-items-center justify-content-center border-0 me-3"
