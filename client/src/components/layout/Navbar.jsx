@@ -3,6 +3,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import GlobalSearch from "./GlobalSearch";
+import NotificationBell from "./NotificationBell";
 
 function Navbar() {
   const { user, logout } = useAuth();
@@ -27,6 +28,10 @@ function Navbar() {
       </div>
 
       <div className="d-flex align-items-center">
+        <div className="me-3">
+          <NotificationBell />
+        </div>
+
         <button
           onClick={toggleTheme}
           className="btn d-flex align-items-center justify-content-center border-0 me-3"
