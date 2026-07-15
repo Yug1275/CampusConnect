@@ -2,6 +2,7 @@ const Attendance = require("../models/Attendance");
 const Subject = require("../models/Subject");
 const User = require("../models/User");
 const mongoose = require("mongoose");
+const { createNotification } = require("./notificationController");
 
 const normalizeDate = (dateInput) => {
   const d = new Date(dateInput);
@@ -79,6 +80,26 @@ const markAttendance = async (req, res, next) => {
         modified: result.modifiedCount,
       },
     });
+
+    // Fire-and-forget: notify every student marked absent in this batch.
+    // Runs after the response is sent, so it never delays the primary action.
+    const absentStudentIds = records
+      .filter((r) => r.status === "absent")
+      .map((r) => r.student);
+
+    if (absentStudentIds.length > 0) {
+      Promise.all(
+        absentStudentIds.map((studentId) =>
+          createNotification({
+            recipient: studentId,
+            title: "Marked Absent",
+            message: `You were marked absent for ${subjectDoc.name} on ${attendanceDate.toLocaleDateString()}.`,
+            type: "attendance",
+            link: "/student/attendance",
+          })
+        )
+      ).catch((err) => console.error("Failed to send absence notifications:", err.message));
+    }
   } catch (error) {
     next(error);
   }
@@ -202,7 +223,6 @@ const getFacultyAttendanceSummary = async (req, res, next) => {
   try {
     const facultyId = req.user._id;
 
-    // Find all subjects taught by this faculty member
     const subjects = await Subject.find({ faculty: facultyId }).select("_id");
     const subjectIds = subjects.map((s) => s._id);
 

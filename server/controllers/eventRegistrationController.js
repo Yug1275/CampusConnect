@@ -1,6 +1,6 @@
-const crypto = require("crypto");
 const EventRegistration = require("../models/EventRegistration");
 const Event = require("../models/Event");
+const { createNotification } = require("./notificationController");
 
 // @desc    Register the logged-in student for an event
 // @route   POST /api/events/:eventId/register
@@ -36,7 +36,7 @@ const registerForEvent = async (req, res, next) => {
       }
     }
 
-    // Generate the ticket code directly here - no model hook involved
+    const crypto = require("crypto");
     const ticketCode = crypto.randomBytes(12).toString("hex");
 
     const registration = await EventRegistration.create({
@@ -50,6 +50,15 @@ const registerForEvent = async (req, res, next) => {
       message: "Successfully registered for the event",
       registration,
     });
+
+    // Fire-and-forget: registration confirmation notification
+    createNotification({
+      recipient: req.user._id,
+      title: "Event Registration Confirmed",
+      message: `You're registered for ${event.title} on ${new Date(event.date).toLocaleDateString()}. Your ticket is ready.`,
+      type: "event",
+      link: `/student/events/${event._id}/ticket`,
+    }).catch((err) => console.error("Failed to send registration notification:", err.message));
   } catch (error) {
     next(error);
   }

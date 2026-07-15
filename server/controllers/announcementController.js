@@ -1,4 +1,6 @@
 const Announcement = require("../models/Announcement");
+const User = require("../models/User");
+const { createNotification } = require("./notificationController");
 
 // @desc    Create a new announcement
 // @route   POST /api/announcements
@@ -23,6 +25,39 @@ const createAnnouncement = async (req, res, next) => {
     const populated = await announcement.populate("createdBy", "name role");
 
     res.status(201).json({ success: true, announcement: populated });
+
+    // Fire-and-forget: notify every user matching this announcement's targeting.
+    // Reuses the same relevance logic as getAnnouncements (Task 1), applied
+    // in reverse: instead of filtering announcements for one user, find all
+    // users matching this one announcement's audience.
+    (async () => {
+      try {
+        const roleQuery =
+          announcement.targetRole === "all"
+            ? { role: { $in: ["student", "faculty"] } }
+            : { role: announcement.targetRole };
+
+        const departmentQuery = announcement.targetDepartment
+          ? { department: announcement.targetDepartment }
+          : {};
+
+        const recipients = await User.find({ ...roleQuery, ...departmentQuery }).select("_id");
+
+        await Promise.all(
+          recipients.map((recipient) =>
+            createNotification({
+              recipient: recipient._id,
+              title: "New Announcement",
+              message: announcement.title,
+              type: "announcement",
+              link: "/announcements",
+            })
+          )
+        );
+      } catch (err) {
+        console.error("Failed to send announcement notifications:", err.message);
+      }
+    })();
   } catch (error) {
     next(error);
   }
@@ -38,8 +73,6 @@ const getAnnouncements = async (req, res, next) => {
       $or: [{ targetRole: "all" }, { targetRole: req.user.role }],
     };
 
-    // If the announcement targets a specific department, only show it to
-    // users in that department; announcements with no department target (empty string) show to everyone
     const departmentQuery = {
       $or: [{ targetDepartment: "" }, { targetDepartment: req.user.department || "" }],
     };
