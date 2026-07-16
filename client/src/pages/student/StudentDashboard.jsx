@@ -1,4 +1,3 @@
-import CampusMapCard from "../../components/dashboard/CampusMapCard";
 import { useState, useEffect } from "react";
 import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward, FiUsers } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
@@ -10,6 +9,21 @@ import ListCard from "../../components/dashboard/ListCard";
 import { getMyAttendanceSummary } from "../../services/attendanceService";
 import { getMyRegistrations } from "../../services/eventService";
 import { getMyClubs } from "../../services/clubService";
+import { getAnnouncements } from "../../services/announcementService";
+
+// Same relative-time formatter used in the Announcement Feed (Task 3)
+const timeAgo = (isoString) => {
+  const diffMs = new Date() - new Date(isoString);
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins} minute${diffMins === 1 ? "" : "s"} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  if (diffDays < 7) return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+  return new Date(isoString).toLocaleDateString(undefined, { day: "2-digit", month: "short" });
+};
 
 function StudentDashboard() {
   const { user } = useAuth();
@@ -24,6 +38,9 @@ function StudentDashboard() {
 
   const [clubCount, setClubCount] = useState(null);
   const [loadingClubs, setLoadingClubs] = useState(true);
+
+  const [recentAnnouncements, setRecentAnnouncements] = useState([]);
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -82,16 +99,29 @@ function StudentDashboard() {
     fetchClubs();
   }, []);
 
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const response = await getAnnouncements();
+        const recent = response.data.announcements.slice(0, 3).map((a) => ({
+          primary: a.title,
+          secondary: `Posted by ${a.createdBy?.name || "Unknown"} · ${timeAgo(a.createdAt)}`,
+        }));
+        setRecentAnnouncements(recent);
+      } catch (err) {
+        setRecentAnnouncements([]);
+      } finally {
+        setLoadingAnnouncements(false);
+      }
+    };
+    fetchAnnouncements();
+  }, []);
+
   // Static placeholder - Today's Classes requires a Timetable module (not yet built)
   const todaysClasses = [
     { primary: "Data Structures", secondary: "9:00 AM - 10:00 AM, Room 204" },
     { primary: "Database Management Systems", secondary: "10:15 AM - 11:15 AM, Room 110" },
     { primary: "Computer Networks", secondary: "1:00 PM - 2:00 PM, Lab 3" },
-  ];
-
-  const recentAnnouncements = [
-    { primary: "Mid-semester exam schedule released", secondary: "Posted by Admin · 2 days ago" },
-    { primary: "Library hours extended for exam week", secondary: "Posted by Faculty · 4 days ago" },
   ];
 
   // Static placeholder - real Achievement Badges arrive in Phase 10
@@ -119,7 +149,6 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Wired to real data - Phase 5 */}
           <StatCard
             icon={<FiCheckCircle size={20} />}
             label="Attendance"
@@ -128,7 +157,6 @@ function StudentDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Now wired to real data - registered upcoming events (Phase 6) */}
           <StatCard
             icon={<FiCalendar size={20} />}
             label="Upcoming Events"
@@ -146,7 +174,6 @@ function StudentDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Now wired to real data - club memberships (Phase 6) */}
           <StatCard
             icon={<FiUsers size={20} />}
             label="My Clubs"
@@ -171,7 +198,12 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
-          <ListCard title="Recent Announcements" items={recentAnnouncements} />
+          {/* Now wired to real data - Task 1's relevance-filtered announcements */}
+          <ListCard
+            title="Recent Announcements"
+            items={loadingAnnouncements ? [] : recentAnnouncements}
+            emptyText={loadingAnnouncements ? "Loading announcements..." : "No announcements right now."}
+          />
         </div>
 
         <div className="col-12 col-lg-6">
@@ -209,7 +241,6 @@ function StudentDashboard() {
           </div>
         </div>
       </div>
-      <CampusMapCard />
     </MainLayout>
   );
 }
