@@ -13,6 +13,7 @@ import FacultyManagement from "../pages/admin/FacultyManagement";
 import SubjectManagement from "../pages/admin/SubjectManagement";
 import ClubManagement from "../pages/admin/ClubManagement";
 import LocationManagement from "../pages/admin/LocationManagement";
+import Analytics from "../pages/admin/Analytics";
 import MarkAttendance from "../pages/faculty/MarkAttendance";
 import AttendanceHistory from "../pages/student/AttendanceHistory";
 import ScanAttendance from "../pages/student/ScanAttendance";
@@ -104,6 +105,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["admin"]}>
             <LocationManagement />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/analytics"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Analytics />
           </ProtectedRoute>
         }
       />
