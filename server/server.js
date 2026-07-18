@@ -23,6 +23,7 @@ const announcementRoutes = require("./routes/announcementRoutes");
 const searchRoutes = require("./routes/searchRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const feedbackRoutes = require("./routes/feedbackRoutes");
 
 connectDB();
 
@@ -59,6 +60,7 @@ app.use("/api/announcements", announcementRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
