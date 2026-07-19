@@ -28,6 +28,7 @@ import AnnouncementManagement from "../pages/shared/AnnouncementManagement";
 import AnnouncementFeed from "../pages/shared/AnnouncementFeed";
 import ProtectedRoute from "./ProtectedRoute";
 import SubmitFeedback from "../pages/student/SubmitFeedback";
+import FeedbackReview from "../pages/shared/FeedbackReview";
 
 function AppRoutes() {
   return (
@@ -219,6 +220,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["student"]}>
             <SubmitFeedback />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/feedback"
+        element={
+          <ProtectedRoute allowedRoles={["faculty", "admin"]}>
+            <FeedbackReview />
           </ProtectedRoute>
         }
       />

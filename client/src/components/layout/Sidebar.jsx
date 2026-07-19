@@ -50,7 +50,8 @@ function Sidebar() {
       { to: "/faculty/attendance", label: "Mark Attendance", icon: <FiCheckSquare size={18} /> },
       { to: "/events/manage", label: "Manage Events", icon: <FiCalendar size={18} /> },
       { to: "/events/scan-ticket", label: "Scan Event Ticket", icon: <FiTag size={18} /> },
-      { to: "/announcements/manage", label: "Manage Announcements", icon: <FiBell size={18} /> }
+      { to: "/announcements/manage", label: "Manage Announcements", icon: <FiBell size={18} /> },
+      { to: "/feedback", label: "Feedback", icon: <FiMessageSquare size={18} /> },
     );
   }
 

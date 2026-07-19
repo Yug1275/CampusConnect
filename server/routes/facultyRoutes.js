@@ -9,10 +9,13 @@ const {
 } = require("../controllers/facultyController");
 const { protect, authorize } = require("../middleware/authMiddleware");
 
-// All faculty management routes are admin-only
-router.use(protect, authorize("admin"));
+// Read access is available to any authenticated user so student-facing views can populate
+// faculty pickers, while write operations remain admin-only.
+router.get("/", protect, getFaculty);
+router.get("/:id", protect, getFacultyById);
 
-router.route("/").get(getFaculty).post(createFaculty);
-router.route("/:id").get(getFacultyById).put(updateFaculty).delete(deleteFaculty);
+router.post("/", protect, authorize("admin"), createFaculty);
+router.put("/:id", protect, authorize("admin"), updateFaculty);
+router.delete("/:id", protect, authorize("admin"), deleteFaculty);
 
 module.exports = router;
