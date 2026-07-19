@@ -212,7 +212,17 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route
+        path="/student/feedback"
+        element={
+          <ProtectedRoute allowedRoles={["student"]}>
+            <SubmitFeedback />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
+
   );
 }
 
