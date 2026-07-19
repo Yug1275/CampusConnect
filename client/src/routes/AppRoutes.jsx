@@ -27,6 +27,7 @@ import CampusNavigation from "../pages/shared/CampusNavigation";
 import AnnouncementManagement from "../pages/shared/AnnouncementManagement";
 import AnnouncementFeed from "../pages/shared/AnnouncementFeed";
 import ProtectedRoute from "./ProtectedRoute";
+import SubmitFeedback from "../pages/student/SubmitFeedback";
 
 function AppRoutes() {
   return (
