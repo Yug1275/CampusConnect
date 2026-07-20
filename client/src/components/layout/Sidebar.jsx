@@ -18,6 +18,7 @@ import {
   FiBell,
   FiPieChart,
   FiMessageSquare,
+  FiSearch,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -41,7 +42,8 @@ function Sidebar() {
       { to: "/admin/subjects", label: "Subjects", icon: <FiBookOpen size={18} /> },
       { to: "/admin/clubs", label: "Clubs", icon: <FiAward size={18} /> },
       { to: "/admin/locations", label: "Locations", icon: <FiMapPin size={18} /> },
-      { to: "/admin/analytics", label: "Analytics", icon: <FiPieChart size={18} /> }
+      { to: "/admin/analytics", label: "Analytics", icon: <FiPieChart size={18} /> },
+      { to: "/admin/lost-found/verify", label: "Verify Claims", icon: <FiCheckCircle size={18} /> },
     );
   }
 
@@ -73,7 +75,8 @@ function Sidebar() {
   navItems.push(
     { to: "/campus-map", label: "Campus Map", icon: <FiMap size={18} /> },
     { to: "/campus-navigation", label: "Navigation", icon: <FiNavigation size={18} /> },
-    { to: "/lost-found/report", label: "Lost & Found", icon: <FiTag size={18} /> },
+    { to: "/lost-found/report", label: "Report Item", icon: <FiTag size={18} /> },
+    { to: "/lost-found/browse", label: "Browse Lost & Found", icon: <FiSearch size={18} /> },
   );
 
   return (

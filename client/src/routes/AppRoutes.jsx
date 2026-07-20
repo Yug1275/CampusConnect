@@ -30,6 +30,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import SubmitFeedback from "../pages/student/SubmitFeedback";
 import FeedbackReview from "../pages/shared/FeedbackReview";
 import ReportLostFound from "../pages/shared/ReportLostFound";
+import BrowseLostFound from "../pages/shared/BrowseLostFound";
+import VerifyClaims from "../pages/admin/VerifyClaims";
 
 function AppRoutes() {
   return (
@@ -238,6 +240,23 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ReportLostFound />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lost-found/browse"
+        element={
+          <ProtectedRoute>
+            <BrowseLostFound />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/lost-found/verify"
+        element={
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <VerifyClaims />
           </ProtectedRoute>
         }
       />
