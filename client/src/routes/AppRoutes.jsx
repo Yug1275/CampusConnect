@@ -29,6 +29,7 @@ import AnnouncementFeed from "../pages/shared/AnnouncementFeed";
 import ProtectedRoute from "./ProtectedRoute";
 import SubmitFeedback from "../pages/student/SubmitFeedback";
 import FeedbackReview from "../pages/shared/FeedbackReview";
+import ReportLostFound from "../pages/shared/ReportLostFound";
 
 function AppRoutes() {
   return (
@@ -228,6 +229,15 @@ function AppRoutes() {
         element={
           <ProtectedRoute allowedRoles={["faculty", "admin"]}>
             <FeedbackReview />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lost-found/report"
+        element={
+          <ProtectedRoute>
+            <ReportLostFound />
           </ProtectedRoute>
         }
       />

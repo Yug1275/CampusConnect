@@ -72,7 +72,8 @@ function Sidebar() {
 
   navItems.push(
     { to: "/campus-map", label: "Campus Map", icon: <FiMap size={18} /> },
-    { to: "/campus-navigation", label: "Navigation", icon: <FiNavigation size={18} /> }
+    { to: "/campus-navigation", label: "Navigation", icon: <FiNavigation size={18} /> },
+    { to: "/lost-found/report", label: "Lost & Found", icon: <FiTag size={18} /> },
   );
 
   return (
