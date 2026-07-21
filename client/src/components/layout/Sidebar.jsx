@@ -19,6 +19,7 @@ import {
   FiPieChart,
   FiMessageSquare,
   FiSearch,
+  FiCheckCircle,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
