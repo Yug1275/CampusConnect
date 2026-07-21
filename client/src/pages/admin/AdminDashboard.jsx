@@ -1,15 +1,17 @@
-import CampusMapCard from "../../components/dashboard/CampusMapCard";
 import { useState, useEffect } from "react";
-import { FiUsers, FiUserCheck, FiGrid, FiCalendar } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import { FiUsers, FiUserCheck, FiGrid, FiCalendar, FiArrowRight } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import MainLayout from "../../components/layout/MainLayout";
 import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
-import ChartPlaceholder from "../../components/dashboard/ChartPlaceholder";
+import LineChartCard from "../../components/dashboard/LineChartCard";
+import BarChartCard from "../../components/dashboard/BarChartCard";
 import { getAdminSummary } from "../../services/adminService";
 import { getEvents } from "../../services/eventService";
+import { getAttendanceTrend, getStudentsPerDepartment } from "../../services/analyticsService";
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -21,6 +23,10 @@ function AdminDashboard() {
 
   const [upcomingEventCount, setUpcomingEventCount] = useState(null);
   const [loadingEvents, setLoadingEvents] = useState(true);
+
+  const [attendanceTrend, setAttendanceTrend] = useState([]);
+  const [studentsPerDept, setStudentsPerDept] = useState([]);
+  const [loadingCharts, setLoadingCharts] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -48,6 +54,25 @@ function AdminDashboard() {
       }
     };
     fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    const fetchCharts = async () => {
+      try {
+        const [trendRes, deptRes] = await Promise.all([
+          getAttendanceTrend(),
+          getStudentsPerDepartment(),
+        ]);
+        setAttendanceTrend(trendRes.data.trend);
+        setStudentsPerDept(deptRes.data.data);
+      } catch (err) {
+        setAttendanceTrend([]);
+        setStudentsPerDept([]);
+      } finally {
+        setLoadingCharts(false);
+      }
+    };
+    fetchCharts();
   }, []);
 
   const recentActivities = [
@@ -104,7 +129,6 @@ function AdminDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Now wired to real data - live upcoming events count (Phase 6) */}
           <StatCard
             icon={<FiCalendar size={20} />}
             label="Active Events"
@@ -114,21 +138,50 @@ function AdminDashboard() {
         </div>
       </div>
 
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-6">
-          <ChartPlaceholder title="Attendance Analytics" />
-        </div>
-        <div className="col-12 col-lg-6">
-          <ChartPlaceholder title="Students per Department" />
-        </div>
+      {/* Real charts - replaces ChartPlaceholder (static since Phase 3, Task 4) */}
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <h6 className="mb-0" style={{ color: colors.textPrimary, fontWeight: 700, fontSize: "1rem" }}>
+          Campus Insights
+        </h6>
+        <Link
+          to="/admin/analytics"
+          className="d-flex align-items-center"
+          style={{ color: colors.activeLinkColor, fontWeight: 600, fontSize: "0.85rem", textDecoration: "none" }}
+        >
+          View Full Analytics <FiArrowRight size={14} className="ms-1" />
+        </Link>
       </div>
+
+      {loadingCharts ? (
+        <p style={{ color: colors.textSecondary }} className="mb-4">
+          Loading charts...
+        </p>
+      ) : (
+        <div className="row g-3 mb-4">
+          <div className="col-12 col-lg-6">
+            <LineChartCard
+              title="Attendance Trend (Last 14 Days)"
+              labels={attendanceTrend.map((t) => t.date)}
+              values={attendanceTrend.map((t) => t.percentage)}
+            />
+          </div>
+          <div className="col-12 col-lg-6">
+            <BarChartCard
+              title="Students per Department"
+              labels={studentsPerDept.map((d) => d.department)}
+              values={studentsPerDept.map((d) => d.count)}
+              color="#2563eb"
+              horizontal
+            />
+          </div>
+        </div>
+      )}
 
       <div className="row g-3 mb-4">
         <div className="col-12">
           <ListCard title="Recent Activities" items={recentActivities} />
         </div>
       </div>
-      <CampusMapCard />
     </MainLayout>
   );
 }
