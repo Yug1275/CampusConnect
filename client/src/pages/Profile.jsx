@@ -340,6 +340,34 @@ function Profile() {
                         onChange={handleChange}
                       />
                     </div>
+                    <div className="col-12 col-sm-6">
+                      <label style={getLabelStyle(colors)} className="form-label d-block">
+                        Blood Group
+                      </label>
+                      <input
+                        type="text"
+                        name="bloodGroup"
+                        className="form-control"
+                        style={getInputStyle(colors)}
+                        value={formData.bloodGroup || ""}
+                        onChange={handleChange}
+                        placeholder="e.g. O+"
+                      />
+                    </div>
+                    <div className="col-12 col-sm-6">
+                      <label style={getLabelStyle(colors)} className="form-label d-block">
+                        Emergency Contact
+                      </label>
+                      <input
+                        type="text"
+                        name="emergencyContact"
+                        className="form-control"
+                        style={getInputStyle(colors)}
+                        value={formData.emergencyContact || ""}
+                        onChange={handleChange}
+                        placeholder="Phone number"
+                      />
+                    </div>
                   </>
                 )}
 

@@ -32,6 +32,7 @@ import FeedbackReview from "../pages/shared/FeedbackReview";
 import ReportLostFound from "../pages/shared/ReportLostFound";
 import BrowseLostFound from "../pages/shared/BrowseLostFound";
 import VerifyClaims from "../pages/admin/VerifyClaims";
+import DigitalID from "../pages/student/DigitalID";
 
 function AppRoutes() {
   return (
@@ -260,6 +261,10 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      <Route path="/student/id-card" 
+      element={
+      <ProtectedRoute allowedRoles={["student"]}><DigitalID /></ProtectedRoute>} />
     </Routes>
 
   );

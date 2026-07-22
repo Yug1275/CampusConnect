@@ -26,13 +26,10 @@ const updateMyProfile = async (req, res, next) => {
       throw new Error("User not found");
     }
 
+    // server/controllers/userController.js - editableFields array
     const editableFields = [
-      "name",
-      "department",
-      "semester",
-      "rollNumber",
-      "qualification",
-      "subjects",
+      "name", "department", "semester", "rollNumber",
+      "qualification", "subjects", "bloodGroup", "emergencyContact",
     ];
 
     editableFields.forEach((field) => {
@@ -94,5 +91,7 @@ const updateProfilePicture = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 module.exports = { getMyProfile, updateMyProfile, updateProfilePicture };

@@ -20,6 +20,7 @@ import {
   FiMessageSquare,
   FiSearch,
   FiCheckCircle,
+  FiCreditCard,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -69,7 +70,8 @@ function Sidebar() {
       { to: "/student/events", label: "Events", icon: <FiCalendar size={18} /> },
       { to: "/student/clubs", label: "Clubs", icon: <FiAward size={18} /> },
       { to: "/announcements", label: "Announcements", icon: <FiBell size={18} /> },
-      { to: "/student/feedback", label: "Submit Feedback", icon: <FiMessageSquare size={18} /> }
+      { to: "/student/feedback", label: "Submit Feedback", icon: <FiMessageSquare size={18} /> },
+      { to: "/student/id-card", label: "Digital ID", icon: <FiCreditCard size={18} /> },
     );
   }
 

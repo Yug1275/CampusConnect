@@ -43,6 +43,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    bloodGroup: {
+      type: String,
+      default: "",
+    },
+    emergencyContact: {
+      type: String,
+      default: "",
+    },
 
     // Faculty-specific fields
     qualification: {
