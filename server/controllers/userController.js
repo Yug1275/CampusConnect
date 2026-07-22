@@ -52,6 +52,8 @@ const updateMyProfile = async (req, res, next) => {
         department: updatedUser.department,
         semester: updatedUser.semester,
         rollNumber: updatedUser.rollNumber,
+        bloodGroup: updatedUser.bloodGroup,
+        emergencyContact: updatedUser.emergencyContact,
         qualification: updatedUser.qualification,
         subjects: updatedUser.subjects,
       },

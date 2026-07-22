@@ -27,6 +27,8 @@ function Profile() {
     department: "",
     semester: "",
     rollNumber: "",
+    bloodGroup: "",
+    emergencyContact: "",
     qualification: "",
     subjects: "",
   });
@@ -47,6 +49,8 @@ function Profile() {
           department: profile.department || "",
           semester: profile.semester || "",
           rollNumber: profile.rollNumber || "",
+          bloodGroup: profile.bloodGroup || "",
+          emergencyContact: profile.emergencyContact || "",
           qualification: profile.qualification || "",
           subjects: (profile.subjects || []).join(", "),
         });
@@ -76,6 +80,8 @@ function Profile() {
         department: formData.department,
         semester: formData.semester ? Number(formData.semester) : null,
         rollNumber: formData.rollNumber,
+        bloodGroup: formData.bloodGroup,
+        emergencyContact: formData.emergencyContact,
         qualification: formData.qualification,
         subjects: formData.subjects
           ? formData.subjects.split(",").map((s) => s.trim()).filter(Boolean)
@@ -84,7 +90,11 @@ function Profile() {
 
       const response = await updateMyProfile(payload);
       setMessage("Profile updated successfully");
-      updateUserInContext({ name: response.data.user.name });
+      updateUserInContext({
+        name: response.data.user.name,
+        bloodGroup: response.data.user.bloodGroup,
+        emergencyContact: response.data.user.emergencyContact,
+      });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to update profile");
     } finally {
@@ -356,7 +366,7 @@ function Profile() {
                     </div>
                     <div className="col-12 col-sm-6">
                       <label style={getLabelStyle(colors)} className="form-label d-block">
-                        Emergency Contact
+                        Phone Number
                       </label>
                       <input
                         type="text"

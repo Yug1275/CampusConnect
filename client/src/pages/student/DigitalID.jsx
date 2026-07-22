@@ -103,7 +103,7 @@ function DigitalID() {
                 <FiDroplet size={13} className="me-2" /> Blood Group: {profile?.bloodGroup || "—"}
               </div>
               <div className="d-flex align-items-center" style={{ color: "#cbd5e1", fontSize: "0.78rem" }}>
-                <FiPhone size={13} className="me-2" /> Emergency: {profile?.emergencyContact || "—"}
+                <FiPhone size={13} className="me-2" /> Phone Number: {profile?.emergencyContact || "—"}
               </div>
             </div>
 
