@@ -70,6 +70,7 @@ function FlyToLocation({ flyTarget }) {
 function CampusMap() {
   const { theme } = useTheme();
   const colors = themeColors[theme];
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -91,6 +92,12 @@ function CampusMap() {
       }
     };
     fetchLocations();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const mapCenter =
@@ -152,7 +159,7 @@ function CampusMap() {
       ) : (
         <>
           {/* Search bar with live results dropdown */}
-          <div className="position-relative mb-3" style={{ maxWidth: "420px" }}>
+          <div className="position-relative mb-3" style={{ width: "100%", maxWidth: "420px" }}>
             <SearchBar
               placeholder="Search locations by name or category..."
               onSearch={setSearchQuery}
@@ -217,10 +224,11 @@ function CampusMap() {
                   boxShadow: colors.shadow,
                 }}
               >
-                <MapContainer
-                  center={mapCenter}
-                  zoom={16}
-                  style={{ height: "600px", width: "100%" }}
+                  <MapContainer
+                    center={mapCenter}
+                    zoom={16}
+                    style={{ height: isMobile ? "420px" : "600px", width: "100%" }}
+                  >
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -300,7 +308,7 @@ function CampusMap() {
             </div>
 
             {selectedLocation && (
-              <div className="col-12 col-lg-4" style={{ height: "600px" }}>
+              <div className="col-12 col-lg-4" style={{ height: isMobile ? "auto" : "600px" }}>
                 <LocationDetailPanel
                   location={selectedLocation}
                   onClose={() => setSelectedLocation(null)}

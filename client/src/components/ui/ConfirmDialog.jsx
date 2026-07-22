@@ -22,9 +22,8 @@ function ConfirmDialog({ isOpen, onCancel, onConfirm, title, message, confirmLab
           backgroundColor: colors.cardBg,
           borderRadius: "14px",
           border: `1px solid ${colors.border}`,
-          width: "100%",
-          maxWidth: "380px",
-          margin: "0 16px",
+          width: "min(380px, calc(100vw - 24px))",
+          margin: "0 12px",
         }}
       >
         <div

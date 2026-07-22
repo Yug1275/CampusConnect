@@ -31,6 +31,7 @@ function DigitalID() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 576);
 
   const cardRef = useRef(null);
 
@@ -39,6 +40,12 @@ function DigitalID() {
       .then((res) => setProfile(res.data.user))
       .catch(() => setProfile(null))
       .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 576);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const qrValue = JSON.stringify({
@@ -116,8 +123,9 @@ function DigitalID() {
           <div
             ref={cardRef}
             id="student-id-card"
-            className="mx-auto p-4"
+            className="mx-auto p-3 p-sm-4"
             style={{
+              width: "100%",
               maxWidth: "380px",
               borderRadius: "18px",
               background: cardBackground,
@@ -143,13 +151,13 @@ function DigitalID() {
 
             <div className="d-flex align-items-center mb-3">
               {profile?.profileImage ? (
-                <img
+                  <img
                   src={`${API_BASE}${profile.profileImage}`}
                   alt={user?.name}
                   crossOrigin="anonymous"
                   style={{
-                    width: "72px",
-                    height: "72px",
+                    width: isMobile ? "60px" : "72px",
+                    height: isMobile ? "60px" : "72px",
                     borderRadius: "12px",
                     objectFit: "cover",
                     marginRight: "16px",
@@ -160,8 +168,8 @@ function DigitalID() {
                 <div
                   className="d-flex align-items-center justify-content-center me-3"
                   style={{
-                    width: "72px",
-                    height: "72px",
+                    width: isMobile ? "60px" : "72px",
+                    height: isMobile ? "60px" : "72px",
                     borderRadius: "12px",
                     backgroundColor: isDarkTheme ? "#2563eb" : colors.activeLinkBg,
                     color: isDarkTheme ? "#fff" : colors.activeLinkColor,
@@ -200,7 +208,7 @@ function DigitalID() {
               </div>
 
               <div className="p-2" style={{ backgroundColor: qrPanelBg, borderRadius: "10px", border: `1px solid ${idBorderColor}` }}>
-                <QRCodeSVG value={qrValue} size={70} />
+                <QRCodeSVG value={qrValue} size={isMobile ? 60 : 70} />
               </div>
             </div>
           </div>

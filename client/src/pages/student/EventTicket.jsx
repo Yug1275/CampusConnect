@@ -20,6 +20,7 @@ function EventTicket() {
   const [ticket, setTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 576);
 
   useEffect(() => {
     const fetchTicket = async () => {
@@ -34,6 +35,12 @@ function EventTicket() {
     };
     fetchTicket();
   }, [eventId]);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 576);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <MainLayout>
@@ -53,12 +60,13 @@ function EventTicket() {
         </div>
       ) : !ticket.ticketCode ? (
         <div
-          className="p-4 text-center mx-auto"
+          className="p-3 p-sm-4 text-center mx-auto"
           style={{
             backgroundColor: colors.cardBg,
             borderRadius: "16px",
             border: `1px solid ${colors.border}`,
             boxShadow: colors.shadow,
+            width: "100%",
             maxWidth: "420px",
           }}
         >
@@ -122,7 +130,7 @@ function EventTicket() {
               opacity: ticket.checkedIn ? 0.4 : 1,
             }}
           >
-            <QRCodeSVG value={buildTicketQrValue(ticket.ticketCode)} size={200} />
+            <QRCodeSVG value={buildTicketQrValue(ticket.ticketCode)} size={isMobile ? 160 : 200} />
           </div>
 
           {ticket.checkedIn ? (

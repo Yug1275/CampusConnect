@@ -86,7 +86,7 @@ function BrowseLostFound() {
 
       <div className="d-flex flex-wrap gap-3 mb-4 align-items-center">
         <div
-          className="d-inline-flex"
+          className="d-inline-flex flex-wrap"
           style={{ backgroundColor: colors.cardBg, borderRadius: "10px", border: `1px solid ${colors.border}`, padding: "4px" }}
         >
           {[
@@ -112,7 +112,9 @@ function BrowseLostFound() {
           ))}
         </div>
 
-        <SearchBar placeholder="Search items..." onSearch={setSearchQuery} />
+        <div style={{ width: "100%", maxWidth: "320px" }}>
+          <SearchBar placeholder="Search items..." onSearch={setSearchQuery} />
+        </div>
       </div>
 
       {loading ? (
@@ -134,7 +136,7 @@ function BrowseLostFound() {
             return (
               <div key={item._id} className="col-12 col-sm-6 col-lg-4">
                 <div
-                  className="p-4 h-100 d-flex flex-column"
+                  className="p-3 p-sm-4 h-100 d-flex flex-column"
                   style={{ backgroundColor: colors.cardBg, borderRadius: "14px", border: `1px solid ${colors.border}`, boxShadow: colors.shadow }}
                 >
                   {item.imageUrl && (

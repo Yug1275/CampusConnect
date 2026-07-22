@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { useSidebar } from "../../context/SidebarContext";
 import { NavLink } from "react-router-dom";
 import {
   FiHome,
@@ -29,12 +31,21 @@ import { themeColors } from "../../styles/themeColors";
 function Sidebar() {
   const { user } = useAuth();
   const { theme } = useTheme();
+  const { isMobileOpen, setIsMobileOpen } = useSidebar();
   const colors = themeColors[theme];
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const navItems = [
     { to: "/dashboard", label: "Dashboard", icon: <FiHome size={18} /> },
     { to: "/profile", label: "My Profile", icon: <FiUser size={18} /> },
   ];
+
 
   if (user?.role === "admin") {
     navItems.push(
@@ -83,44 +94,70 @@ function Sidebar() {
   );
 
   return (
-    <aside
-      style={{
-        width: "240px",
-        backgroundColor: colors.sidebarBg,
-        borderRight: `1px solid ${colors.border}`,
-        minHeight: "100%",
-        padding: "24px 16px",
-      }}
-    >
-      <p
-        className="text-uppercase mb-3 px-2"
-        style={{ fontSize: "0.72rem", color: colors.textMuted, fontWeight: 600, letterSpacing: "0.5px" }}
-      >
-        Menu
-      </p>
+    <>
+      {/* Overlay - only visible on mobile when drawer is open */}
+      {!isDesktop && isMobileOpen && (
+        <div
+          className="d-md-none"
+          onClick={() => setIsMobileOpen(false)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            zIndex: 900,
+          }}
+        />
+      )}
 
-      <ul className="nav flex-column" style={{ gap: "4px" }}>
-        {navItems.map((item) => (
-          <li key={item.to} className="nav-item">
-            <NavLink
-              to={item.to}
-              className="d-flex align-items-center px-3 py-2 text-decoration-none rounded-2"
-              style={({ isActive }) => ({
-                color: isActive ? colors.activeLinkColor : colors.textSecondary,
-                backgroundColor: isActive ? colors.activeLinkBg : "transparent",
-                borderLeft: isActive ? `3px solid ${colors.activeLinkColor}` : "3px solid transparent",
-                fontWeight: isActive ? 600 : 500,
-                fontSize: "0.9rem",
-                transition: "all 0.15s ease",
-              })}
-            >
-              <span className="me-3 d-flex align-items-center">{item.icon}</span>
-              {item.label}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
-    </aside>
+      <aside
+        className="d-md-block"
+        style={{
+          width: "240px",
+          backgroundColor: colors.sidebarBg,
+          borderRight: `1px solid ${colors.border}`,
+          minHeight: "100%",
+          padding: "24px 16px",
+          // Mobile: fixed off-canvas drawer; Desktop: normal in-flow sidebar
+          position: isDesktop ? "static" : "fixed",
+          top: 0,
+          left: 0,
+          height: isDesktop ? "auto" : "100vh",
+          zIndex: 950,
+          transform: isDesktop ? "none" : (isMobileOpen ? "translateX(0)" : "translateX(-100%)"),
+          transition: "transform 0.25s ease",
+          display: isDesktop ? undefined : "block",
+        }}
+      >
+        <p
+          className="text-uppercase mb-3 px-2"
+          style={{ fontSize: "0.72rem", color: colors.textMuted, fontWeight: 600, letterSpacing: "0.5px" }}
+        >
+          Menu
+        </p>
+
+        <ul className="nav flex-column" style={{ gap: "4px" }}>
+          {navItems.map((item) => (
+            <li key={item.to} className="nav-item">
+              <NavLink
+                to={item.to}
+                className="d-flex align-items-center px-3 py-2 text-decoration-none rounded-2"
+                style={({ isActive }) => ({
+                  color: isActive ? colors.activeLinkColor : colors.textSecondary,
+                  backgroundColor: isActive ? colors.activeLinkBg : "transparent",
+                  borderLeft: isActive ? `3px solid ${colors.activeLinkColor}` : "3px solid transparent",
+                  fontWeight: isActive ? 600 : 500,
+                  fontSize: "0.9rem",
+                  transition: "all 0.15s ease",
+                })}
+              >
+                <span className="me-3 d-flex align-items-center">{item.icon}</span>
+                {item.label}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    </>
   );
 }
 

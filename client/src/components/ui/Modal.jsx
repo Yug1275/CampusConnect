@@ -22,9 +22,8 @@ function Modal({ isOpen, onClose, title, children }) {
           backgroundColor: colors.cardBg,
           borderRadius: "14px",
           border: `1px solid ${colors.border}`,
-          width: "100%",
-          maxWidth: "480px",
-          margin: "0 16px",
+          width: "min(480px, calc(100vw - 24px))",
+          margin: "0 12px",
           maxHeight: "90vh",
           overflowY: "auto",
         }}

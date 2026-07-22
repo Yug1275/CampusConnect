@@ -75,9 +75,9 @@ function ChatWidget() {
           style={{
             position: "fixed",
             bottom: "92px",
-            right: "24px",
-            width: "340px",
-            height: "460px",
+            right: "16px",
+            width: "min(340px, calc(100vw - 32px))",
+            height: "min(460px, calc(100vh - 128px))",
             backgroundColor: colors.cardBg,
             border: `1px solid ${colors.border}`,
             borderRadius: "16px",

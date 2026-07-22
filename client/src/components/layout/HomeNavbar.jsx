@@ -9,9 +9,9 @@ function HomeNavbar() {
 
   return (
     <nav
-      className="d-flex align-items-center justify-content-between px-4 px-md-5 fade-in"
+      className="d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-md-5 fade-in"
       style={{
-        height: "72px",
+        minHeight: "72px",
         backgroundColor: colors.pageBg,
         borderBottom: `1px solid ${colors.border}`,
         position: "sticky",
@@ -23,7 +23,7 @@ function HomeNavbar() {
         CampusConnect
       </span>
 
-      <div className="d-flex align-items-center" style={{ gap: "10px" }}>
+      <div className="d-flex align-items-center flex-wrap justify-content-end" style={{ gap: "10px" }}>
         <button
           onClick={toggleTheme}
           className="btn d-flex align-items-center justify-content-center border-0"

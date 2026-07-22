@@ -12,6 +12,7 @@ const SCANNER_ELEMENT_ID = "ticket-scanner-region";
 function ScanEventTicket() {
   const { theme } = useTheme();
   const colors = themeColors[theme];
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 576);
 
   const [scannerActive, setScannerActive] = useState(false);
   const [processing, setProcessing] = useState(false);
@@ -120,6 +121,12 @@ function ScanEventTicket() {
     };
   }, []);
 
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 576);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
     <MainLayout>
       <div className="mb-4">
@@ -130,12 +137,13 @@ function ScanEventTicket() {
       </div>
 
       <div
-        className="p-4 text-center"
+        className="p-3 p-sm-4 text-center"
         style={{
           backgroundColor: colors.cardBg,
           borderRadius: "14px",
           border: `1px solid ${colors.border}`,
           boxShadow: colors.shadow,
+          width: "100%",
           maxWidth: "480px",
           margin: "0 auto",
         }}
@@ -213,6 +221,7 @@ function ScanEventTicket() {
               id={SCANNER_ELEMENT_ID}
               style={{
                 width: "100%",
+                minHeight: isMobile ? "260px" : "320px",
                 borderRadius: "12px",
                 overflow: "hidden",
                 border: `1px solid ${colors.border}`,

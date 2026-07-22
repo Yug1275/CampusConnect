@@ -14,8 +14,8 @@ function AuthLayout({ title, subtitle, children }) {
         to="/"
         className="d-flex align-items-center justify-content-center position-absolute"
         style={{
-          top: "24px",
-          left: "24px",
+          top: "16px",
+          left: "16px",
           width: "40px",
           height: "40px",
           borderRadius: "50%",
@@ -65,7 +65,7 @@ function AuthLayout({ title, subtitle, children }) {
 
       {/* Right form panel */}
       <div
-        className="d-flex flex-column justify-content-center align-items-center flex-grow-1 p-4"
+        className="d-flex flex-column justify-content-center align-items-center flex-grow-1 p-3 p-md-4"
         style={{ backgroundColor: colors.pageBg }}
       >
         <div style={{ width: "100%", maxWidth: "420px" }}>

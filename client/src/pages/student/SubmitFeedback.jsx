@@ -120,7 +120,7 @@ function SubmitFeedback() {
         {/* Submission form */}
         <div className="col-12 col-lg-7">
           <div
-            className="p-4"
+            className="p-3 p-sm-4"
             style={{
               backgroundColor: colors.cardBg,
               borderRadius: "14px",
@@ -259,7 +259,7 @@ function SubmitFeedback() {
         {/* History */}
         <div className="col-12 col-lg-5">
           <div
-            className="p-4"
+            className="p-3 p-sm-4"
             style={{
               backgroundColor: colors.cardBg,
               borderRadius: "14px",

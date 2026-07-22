@@ -25,7 +25,9 @@ function SearchBar({ placeholder = "Search...", onSearch }) {
         border: `1px solid ${colors.inputBorder}`,
         borderRadius: "8px",
         height: "42px",
-        minWidth: "240px",
+        width: "100%",
+        maxWidth: "240px",
+        minWidth: "0",
       }}
     >
       <FiSearch size={16} color={colors.textMuted} className="me-2 flex-shrink-0" />

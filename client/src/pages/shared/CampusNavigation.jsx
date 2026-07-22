@@ -54,6 +54,7 @@ function FitBoundsToRoute({ from, to }) {
 function CampusNavigation() {
   const { theme } = useTheme();
   const colors = themeColors[theme];
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +85,12 @@ function CampusNavigation() {
       }
     };
     fetchLocations();
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleGetDirections = () => {
@@ -292,7 +299,7 @@ function CampusNavigation() {
               boxShadow: colors.shadow,
             }}
           >
-            <MapContainer center={mapCenter} zoom={16} style={{ height: "550px", width: "100%" }}>
+            <MapContainer center={mapCenter} zoom={16} style={{ height: isMobile ? "420px" : "550px", width: "100%" }}>
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

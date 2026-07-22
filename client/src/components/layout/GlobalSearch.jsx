@@ -84,7 +84,7 @@ function GlobalSearch() {
     : 0;
 
   return (
-    <div className="position-relative d-none d-md-block" ref={containerRef} style={{ width: "320px" }}>
+    <div className="position-relative d-none d-sm-block" ref={containerRef} style={{ width: "320px" }}>
       <div
         className="d-flex align-items-center px-3"
         style={{

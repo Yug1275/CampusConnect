@@ -166,7 +166,7 @@ function NotificationBell() {
           style={{
             top: "100%",
             right: 0,
-            width: "340px",
+            width: "min(340px, calc(100vw - 24px))",
             backgroundColor: colors.cardBg,
             border: `1px solid ${colors.border}`,
             borderRadius: "12px",

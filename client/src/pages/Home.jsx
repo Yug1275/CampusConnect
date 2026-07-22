@@ -84,10 +84,10 @@ function Home() {
         <div
           style={{
             position: "absolute",
-            top: "-100px",
-            left: "-100px",
-            width: "350px",
-            height: "350px",
+            top: "-80px",
+            left: "-80px",
+            width: "clamp(220px, 55vw, 350px)",
+            height: "clamp(220px, 55vw, 350px)",
             borderRadius: "50%",
             background: "radial-gradient(circle, rgba(37,99,235,0.25), transparent 70%)",
             animation: "floatBlob 10s ease-in-out infinite",
@@ -97,10 +97,10 @@ function Home() {
         <div
           style={{
             position: "absolute",
-            bottom: "-120px",
-            right: "-100px",
-            width: "400px",
-            height: "400px",
+            bottom: "-100px",
+            right: "-80px",
+            width: "clamp(240px, 60vw, 400px)",
+            height: "clamp(240px, 60vw, 400px)",
             borderRadius: "50%",
             background: "radial-gradient(circle, rgba(147,51,234,0.2), transparent 70%)",
             animation: "floatBlob 12s ease-in-out infinite reverse",
@@ -108,7 +108,7 @@ function Home() {
           }}
         />
 
-        <div className="position-relative" style={{ zIndex: 1, maxWidth: "720px" }}>
+        <div className="position-relative px-2 px-sm-0" style={{ zIndex: 1, maxWidth: "720px" }}>
           <span
             className="d-inline-block px-3 py-1 mb-4 fade-in-up"
             style={{
@@ -127,7 +127,7 @@ function Home() {
             className="fade-in-up delay-1"
             style={{
               fontWeight: 800,
-              fontSize: "3rem",
+              fontSize: "clamp(2.2rem, 8vw, 3rem)",
               color: colors.textPrimary,
               lineHeight: 1.2,
             }}
@@ -137,7 +137,7 @@ function Home() {
 
           <p
             className="fade-in-up delay-2 mt-3 mb-5"
-            style={{ color: colors.textSecondary, fontSize: "1.1rem" }}
+            style={{ color: colors.textSecondary, fontSize: "clamp(0.98rem, 3.5vw, 1.1rem)" }}
           >
             Manage attendance, events, clubs, announcements, and campus life —
             all in one seamless platform built for students, faculty, and admins.
@@ -202,8 +202,8 @@ function Home() {
 
       {/* Features Section */}
       <section className="px-4 px-md-5 py-5" style={{ maxWidth: "1140px", margin: "0 auto" }}>
-        <div className="text-center mb-5 fade-in-up">
-          <h2 style={{ fontWeight: 700, color: colors.textPrimary, fontSize: "2rem" }}>
+        <div className="text-center mb-5 fade-in-up px-2 px-md-0">
+          <h2 style={{ fontWeight: 700, color: colors.textPrimary, fontSize: "clamp(1.5rem, 5vw, 2rem)" }}>
             Everything Your Campus Needs
           </h2>
           <p style={{ color: colors.textSecondary }}>
@@ -248,14 +248,14 @@ function Home() {
       {/* CTA Banner */}
       <section className="px-4 py-5">
         <div
-          className="mx-auto p-5 text-center fade-in-up"
+          className="mx-auto p-4 p-md-5 text-center fade-in-up"
           style={{
             maxWidth: "900px",
             borderRadius: "20px",
             background: "linear-gradient(135deg, #1e293b, #2563eb)",
           }}
         >
-          <h3 style={{ color: "#fff", fontWeight: 700, fontSize: "1.6rem" }}>
+          <h3 style={{ color: "#fff", fontWeight: 700, fontSize: "clamp(1.25rem, 4.5vw, 1.6rem)" }}>
             Ready to get started?
           </h3>
           <p style={{ color: "#cbd5e1" }} className="mb-4">

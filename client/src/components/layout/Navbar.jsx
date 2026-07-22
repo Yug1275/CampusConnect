@@ -1,4 +1,5 @@
-import { FiLogOut, FiUser, FiSun, FiMoon } from "react-icons/fi";
+import { FiLogOut, FiUser, FiSun, FiMoon, FiMenu } from "react-icons/fi";
+import { useSidebar } from "../../context/SidebarContext";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
@@ -9,6 +10,7 @@ function Navbar() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const colors = themeColors[theme];
+  const { isMobileOpen, setIsMobileOpen } = useSidebar();
 
   return (
     <nav
@@ -20,6 +22,14 @@ function Navbar() {
       }}
     >
       <div className="d-flex align-items-center" style={{ gap: "24px" }}>
+        <button
+          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          className="btn d-md-none d-flex align-items-center justify-content-center border-0"
+          style={{ width: "36px", height: "36px", color: "#fff", backgroundColor: "transparent" }}
+        >
+          <FiMenu size={20} />
+        </button>
+
         <span style={{ fontSize: "1.25rem", fontWeight: 700, color: "#fff", letterSpacing: "0.3px" }}>
           CampusConnect
         </span>
@@ -48,7 +58,7 @@ function Navbar() {
         </button>
 
         <div
-          className="d-flex align-items-center me-3 px-3 py-1"
+          className="d-none d-sm-flex align-items-center me-3 px-3 py-1"
           style={{ backgroundColor: colors.navbarBorder, borderRadius: "20px" }}
         >
           <FiUser size={16} color="#cbd5e1" className="me-2" />
