@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { FiCheckCircle, FiCalendar, FiBookOpen, FiAward, FiUsers } from "react-icons/fi";
+import {
+  FiCheckCircle,
+  FiCalendar,
+  FiBookOpen,
+  FiAward,
+  FiUsers,
+  FiStar,
+  FiHeart,
+} from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
@@ -10,6 +18,7 @@ import { getMyAttendanceSummary } from "../../services/attendanceService";
 import { getMyRegistrations } from "../../services/eventService";
 import { getMyClubs } from "../../services/clubService";
 import { getAnnouncements } from "../../services/announcementService";
+import { getMyBadges, checkAndAwardBadges } from "../../services/badgeService";
 
 // Same relative-time formatter used in the Announcement Feed (Task 3)
 const timeAgo = (isoString) => {
@@ -25,6 +34,21 @@ const timeAgo = (isoString) => {
   return new Date(isoString).toLocaleDateString(undefined, { day: "2-digit", month: "short" });
 };
 
+const BADGE_ICONS = {
+  high_attendance: FiCheckCircle,
+  club_member: FiAward,
+  event_participant: FiCalendar,
+  top_performer: FiStar,
+  volunteer: FiHeart,
+};
+
+const BADGE_COLORS = {
+  high_attendance: "#16a34a",
+  club_member: "#9333ea",
+  event_participant: "#2563eb",
+  top_performer: "#f59e0b",
+  volunteer: "#dc2626",
+};
 function StudentDashboard() {
   const { user } = useAuth();
   const { theme } = useTheme();
@@ -41,6 +65,9 @@ function StudentDashboard() {
 
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+
+  const [badges, setBadges] = useState([]);
+  const [loadingBadges, setLoadingBadges] = useState(true);
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -117,15 +144,28 @@ function StudentDashboard() {
     fetchAnnouncements();
   }, []);
 
-  // Static placeholder - Today's Classes requires a Timetable module (not yet built)
+  // Trigger badge eligibility check on dashboard load, then fetch the current list -
+  // this is how badges get awarded "automatically" without a background job (Task 5)
+  useEffect(() => {
+    const fetchBadges = async () => {
+      try {
+        const response = await checkAndAwardBadges();
+        setBadges(response.data.badges);
+      } catch (err) {
+        setBadges([]);
+      } finally {
+        setLoadingBadges(false);
+      }
+    };
+    fetchBadges();
+  }, []);
+
+  // Static placeholder - Today's Classes requires a Timetable module (not built in this project)
   const todaysClasses = [
     { primary: "Data Structures", secondary: "9:00 AM - 10:00 AM, Room 204" },
     { primary: "Database Management Systems", secondary: "10:15 AM - 11:15 AM, Room 110" },
     { primary: "Computer Networks", secondary: "1:00 PM - 2:00 PM, Lab 3" },
   ];
-
-  // Static placeholder - real Achievement Badges arrive in Phase 10
-  const badges = ["High Attendance", "Top Performer", "Event Participant"];
 
   const attendanceDisplay = loadingAttendance
     ? "…"
@@ -137,6 +177,7 @@ function StudentDashboard() {
 
   const eventsDisplay = loadingEvents ? "…" : upcomingEventsList.length;
   const clubsDisplay = loadingClubs ? "…" : clubCount !== null ? clubCount : "—";
+  const badgesDisplay = loadingBadges ? "…" : badges.length;
 
   return (
     <MainLayout>
@@ -149,37 +190,18 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiCheckCircle size={20} />}
-            label="Attendance"
-            value={attendanceDisplay}
-            accentColor={attendanceAccent}
-          />
+          <StatCard icon={<FiCheckCircle size={20} />} label="Attendance" value={attendanceDisplay} accentColor={attendanceAccent} />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiCalendar size={20} />}
-            label="Upcoming Events"
-            value={eventsDisplay}
-            accentColor="#2563eb"
-          />
+          <StatCard icon={<FiCalendar size={20} />} label="Upcoming Events" value={eventsDisplay} accentColor="#2563eb" />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - requires a Timetable module (not yet built) */}
-          <StatCard
-            icon={<FiBookOpen size={20} />}
-            label="Today's Classes"
-            value={todaysClasses.length}
-            accentColor="#9333ea"
-          />
+          {/* Static placeholder - requires a Timetable module (not built) */}
+          <StatCard icon={<FiBookOpen size={20} />} label="Today's Classes" value={todaysClasses.length} accentColor="#9333ea" />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          <StatCard
-            icon={<FiUsers size={20} />}
-            label="My Clubs"
-            value={clubsDisplay}
-            accentColor="#f59e0b"
-          />
+          {/* Now wired to real data - Task 5/6's badge system */}
+          <StatCard icon={<FiAward size={20} />} label="Badges Earned" value={badgesDisplay} accentColor="#f59e0b" />
         </div>
       </div>
 
@@ -198,7 +220,20 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
-          {/* Now wired to real data - Task 1's relevance-filtered announcements */}
+          <ListCard title="Today's Classes" items={todaysClasses} />
+        </div>
+
+        <div className="col-12 col-lg-6">
+          <ListCard
+            title="Upcoming Events"
+            items={upcomingEventsList}
+            emptyText="You haven't registered for any upcoming events."
+          />
+        </div>
+      </div>
+
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-lg-6">
           <ListCard
             title="Recent Announcements"
             items={loadingAnnouncements ? [] : recentAnnouncements}
@@ -209,35 +244,43 @@ function StudentDashboard() {
         <div className="col-12 col-lg-6">
           <div
             className="p-4 h-100"
-            style={{
-              backgroundColor: colors.cardBg,
-              borderRadius: "14px",
-              border: `1px solid ${colors.border}`,
-              boxShadow: colors.shadow,
-            }}
+            style={{ backgroundColor: colors.cardBg, borderRadius: "14px", border: `1px solid ${colors.border}`, boxShadow: colors.shadow }}
           >
             <h6 style={{ color: colors.textPrimary, fontWeight: 700, fontSize: "1rem" }} className="mb-3">
               Achievement Badges
             </h6>
-            <div className="d-flex flex-wrap gap-2">
-              {badges.map((badge, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-2 d-flex align-items-center"
-                  style={{
-                    backgroundColor: theme === "light" ? "#fffbeb" : "#3a2e0f",
-                    color: theme === "light" ? "#92400e" : "#fcd34d",
-                    border: `1px solid ${theme === "light" ? "#fde68a" : "#78350f"}`,
-                    borderRadius: "20px",
-                    fontSize: "0.82rem",
-                    fontWeight: 600,
-                  }}
-                >
-                  <FiAward size={14} className="me-2" />
-                  {badge}
-                </span>
-              ))}
-            </div>
+            {loadingBadges ? (
+              <p style={{ color: colors.textSecondary, fontSize: "0.85rem" }} className="mb-0">Checking eligibility...</p>
+            ) : badges.length === 0 ? (
+              <p style={{ color: colors.textMuted, fontSize: "0.85rem" }} className="mb-0">
+                No badges earned yet. Keep attending classes, join clubs, and register for events!
+              </p>
+            ) : (
+              <div className="d-flex flex-wrap gap-2">
+                {badges.map((badge) => {
+                  const Icon = BADGE_ICONS[badge.type] || FiAward;
+                  const color = BADGE_COLORS[badge.type] || "#64748b";
+                  return (
+                    <span
+                      key={badge._id}
+                      className="px-3 py-2 d-flex align-items-center"
+                      style={{
+                        backgroundColor: `${color}15`,
+                        color,
+                        border: `1px solid ${color}40`,
+                        borderRadius: "20px",
+                        fontSize: "0.82rem",
+                        fontWeight: 600,
+                      }}
+                      title={`Earned ${new Date(badge.awardedAt).toLocaleDateString()}`}
+                    >
+                      <Icon size={14} className="me-2" />
+                      {badge.label}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
       </div>

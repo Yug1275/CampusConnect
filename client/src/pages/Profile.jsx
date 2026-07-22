@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from "react";
-import { FiCamera, FiUser, FiMail, FiShield } from "react-icons/fi";
+import { FiCamera, FiUser, FiMail, FiShield, FiAward } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { themeColors } from "../styles/themeColors";
 import MainLayout from "../components/layout/MainLayout";
 import { getMyProfile, updateMyProfile, uploadProfilePicture } from "../services/userService";
+import { getMyBadges } from "../services/badgeService";
 import {
   getInputStyle,
   getReadonlyInputStyle,
@@ -38,6 +39,7 @@ function Profile() {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [badges, setBadges] = useState([]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -63,6 +65,14 @@ function Profile() {
     };
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (user?.role === "student") {
+      getMyBadges()
+        .then((res) => setBadges(res.data.badges))
+        .catch(() => setBadges([]));
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -249,6 +259,40 @@ function Profile() {
               {user?.role}
             </span>
           </div>
+
+          {user?.role === "student" && (
+            <div
+              className="p-4 mt-3"
+              style={{ backgroundColor: colors.cardBg, borderRadius: "14px", border: `1px solid ${colors.border}`, boxShadow: colors.shadow }}
+            >
+              <h6 style={{ color: colors.textPrimary, fontWeight: 700, fontSize: "0.95rem" }} className="mb-3">
+                <FiAward size={16} className="me-2" /> My Badges
+              </h6>
+              {badges.length === 0 ? (
+                <p style={{ color: colors.textMuted, fontSize: "0.82rem" }} className="mb-0">
+                  No badges earned yet.
+                </p>
+              ) : (
+                <div className="d-flex flex-wrap gap-2">
+                  {badges.map((b) => (
+                    <span
+                      key={b._id}
+                      className="px-2 py-1"
+                      style={{
+                        backgroundColor: colors.activeLinkBg,
+                        color: colors.activeLinkColor,
+                        borderRadius: "6px",
+                        fontSize: "0.72rem",
+                        fontWeight: 600,
+                      }}
+                    >
+                      {b.label}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Editable form card */}
