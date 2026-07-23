@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FiMapPin, FiX } from "react-icons/fi";
@@ -67,10 +67,21 @@ function FlyToLocation({ flyTarget }) {
   return null;
 }
 
+// Persists layer selection across reloads
+function LayerPersister() {
+  useMapEvents({
+    baselayerchange(e) {
+      localStorage.setItem("campusconnect-map-layer", e.name);
+    },
+  });
+  return null;
+}
+
 function CampusMap() {
   const { theme } = useTheme();
   const colors = themeColors[theme];
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [initialLayer] = useState(() => localStorage.getItem("campusconnect-map-layer") || "Default Map");
 
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -229,10 +240,21 @@ function CampusMap() {
                     zoom={16}
                     style={{ height: isMobile ? "420px" : "600px", width: "100%" }}
                   >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
+                  <LayersControl position="topright">
+                    <LayersControl.BaseLayer checked={initialLayer === "Default Map"} name="Default Map">
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer checked={initialLayer === "Satellite"} name="Satellite">
+                      <TileLayer
+                        attribution='&copy; <a href="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}">Esri</a>'
+                        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                      />
+                    </LayersControl.BaseLayer>
+                  </LayersControl>
+                  <LayerPersister />
 
                   {locations.map((location) => (
                     <Marker
