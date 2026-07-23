@@ -19,9 +19,17 @@ function HomeNavbar() {
         zIndex: 50,
       }}
     >
-      <span style={{ fontSize: "1.3rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
-        CampusConnect
-      </span>
+      <div className="d-flex align-items-center" style={{ gap: "10px" }}>
+        <img 
+          src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"} 
+          alt="CampusConnect Logo" 
+          style={{ height: "36px", width: "auto" }} 
+          onError={(e) => { e.target.src = "/logo.png" }}
+        />
+        <span style={{ fontSize: "1.3rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
+          CampusConnect
+        </span>
+      </div>
 
       <div className="d-flex align-items-center flex-wrap justify-content-end" style={{ gap: "10px" }}>
         <button

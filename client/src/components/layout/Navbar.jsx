@@ -25,14 +25,22 @@ function Navbar() {
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           className="btn d-md-none d-flex align-items-center justify-content-center border-0"
-          style={{ width: "36px", height: "36px", color: "#fff", backgroundColor: "transparent" }}
+          style={{ width: "36px", height: "36px", color: colors.textSecondary, backgroundColor: "transparent" }}
         >
           <FiMenu size={20} />
         </button>
 
-        <span style={{ fontSize: "1.25rem", fontWeight: 700, color: "#fff", letterSpacing: "0.3px" }}>
-          CampusConnect
-        </span>
+        <div className="d-flex align-items-center" style={{ gap: "10px" }}>
+          <img 
+            src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"} 
+            alt="CampusConnect Logo" 
+            style={{ height: "32px", width: "auto" }} 
+            onError={(e) => { e.target.src = "/logo.png" }} // Fallback if they haven't created the specific files yet
+          />
+          <span style={{ fontSize: "1.25rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
+            CampusConnect
+          </span>
+        </div>
 
         <GlobalSearch />
       </div>
@@ -50,7 +58,7 @@ function Navbar() {
             height: "36px",
             borderRadius: "50%",
             backgroundColor: colors.navbarBorder,
-            color: "#cbd5e1",
+            color: colors.textSecondary,
           }}
           title={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
         >
@@ -61,13 +69,13 @@ function Navbar() {
           className="d-none d-sm-flex align-items-center me-3 px-3 py-1"
           style={{ backgroundColor: colors.navbarBorder, borderRadius: "20px" }}
         >
-          <FiUser size={16} color="#cbd5e1" className="me-2" />
-          <span style={{ color: "#e2e8f0", fontSize: "0.9rem" }}>{user?.name}</span>
+          <FiUser size={16} color={colors.textSecondary} className="me-2" />
+          <span style={{ color: colors.textPrimary, fontSize: "0.9rem" }}>{user?.name}</span>
           <span
             className="ms-2 px-2 py-0"
             style={{
-              backgroundColor: "#475569",
-              color: "#cbd5e1",
+              backgroundColor: colors.activeLinkBg,
+              color: colors.activeLinkColor,
               fontSize: "0.7rem",
               borderRadius: "10px",
               textTransform: "capitalize",
@@ -80,9 +88,9 @@ function Navbar() {
         <button
           onClick={logout}
           className="btn d-flex align-items-center border-0"
-          style={{ backgroundColor: "transparent", color: "#cbd5e1", fontSize: "0.9rem" }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#cbd5e1")}
+          style={{ backgroundColor: "transparent", color: colors.textSecondary, fontSize: "0.9rem" }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
+          onMouseLeave={(e) => (e.currentTarget.style.color = colors.textSecondary)}
         >
           <FiLogOut size={16} className="me-1" />
           Logout

@@ -88,12 +88,12 @@ function GlobalSearch() {
       <div
         className="d-flex align-items-center px-3"
         style={{
-          backgroundColor: "#334155",
+          backgroundColor: theme === "dark" ? "#1e293b" : "#f1f5f9",
           borderRadius: "8px",
           height: "38px",
         }}
       >
-        <FiSearch size={15} color="#94a3b8" className="me-2 flex-shrink-0" />
+        <FiSearch size={15} color={colors.textMuted} className="me-2 flex-shrink-0" />
         <input
           type="text"
           value={query}
@@ -103,7 +103,7 @@ function GlobalSearch() {
           className="border-0 w-100"
           style={{
             backgroundColor: "transparent",
-            color: "#f1f5f9",
+            color: colors.textPrimary,
             fontSize: "0.85rem",
             outline: "none",
           }}

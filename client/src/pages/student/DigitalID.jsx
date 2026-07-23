@@ -134,7 +134,15 @@ function DigitalID() {
             }}
           >
             <div className="d-flex justify-content-between align-items-center mb-4">
-              <span style={{ color: cardTitleColor, fontWeight: 700, fontSize: "1.1rem" }}>CampusConnect</span>
+              <div className="d-flex align-items-center" style={{ gap: "8px" }}>
+                <img 
+                  src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"} 
+                  alt="Logo" 
+                  style={{ height: "24px", width: "auto" }} 
+                  onError={(e) => { e.target.src = "/logo.png" }}
+                />
+                <span style={{ color: cardTitleColor, fontWeight: 700, fontSize: "1.1rem" }}>CampusConnect</span>
+              </div>
               <span
                 className="px-2 py-1"
                 style={{

@@ -132,7 +132,7 @@ function NotificationBell() {
           height: "36px",
           borderRadius: "50%",
           backgroundColor: colors.navbarBorder,
-          color: "#cbd5e1",
+          color: colors.textSecondary,
         }}
         title="Notifications"
       >

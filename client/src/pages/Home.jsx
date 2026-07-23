@@ -108,7 +108,7 @@ function Home() {
           }}
         />
 
-        <div className="position-relative px-2 px-sm-0" style={{ zIndex: 1, maxWidth: "720px" }}>
+        <div className="position-relative px-2 px-sm-0 mt-2" style={{ zIndex: 1, maxWidth: "720px" }}>
           <span
             className="d-inline-block px-3 py-1 mb-4 fade-in-up"
             style={{
@@ -122,6 +122,15 @@ function Home() {
           >
             One Platform for the Entire University
           </span>
+
+          <div className="mb-4 fade-in-up">
+            <img 
+              src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"} 
+              alt="CampusConnect Logo" 
+              style={{ height: "120px", width: "auto" }} 
+              onError={(e) => { e.target.src = "/logo.png" }}
+            />
+          </div>
 
           <h1
             className="fade-in-up delay-1"
