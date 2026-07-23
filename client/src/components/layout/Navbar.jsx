@@ -14,17 +14,17 @@ function Navbar() {
 
   return (
     <nav
-      className="d-flex align-items-center justify-content-between px-4"
+      className="d-flex align-items-center justify-content-between px-2 px-md-4"
       style={{
         height: "64px",
         backgroundColor: colors.navbarBg,
         borderBottom: `1px solid ${colors.navbarBorder}`,
       }}
     >
-      <div className="d-flex align-items-center" style={{ gap: "24px" }}>
+      <div className="d-flex align-items-center gap-2 gap-md-4">
         <button
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="btn d-md-none d-flex align-items-center justify-content-center border-0"
+          className="btn d-md-none d-flex align-items-center justify-content-center border-0 p-1 me-1"
           style={{ width: "36px", height: "36px", color: colors.textSecondary, backgroundColor: "transparent" }}
         >
           <FiMenu size={20} />
@@ -37,7 +37,7 @@ function Navbar() {
             style={{ height: "32px", width: "auto" }} 
             onError={(e) => { e.target.src = "/logo.png" }} // Fallback if they haven't created the specific files yet
           />
-          <span style={{ fontSize: "1.25rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
+          <span className="d-none d-sm-inline" style={{ fontSize: "1.25rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
             CampusConnect
           </span>
         </div>
@@ -45,14 +45,12 @@ function Navbar() {
         <GlobalSearch />
       </div>
 
-      <div className="d-flex align-items-center">
-        <div className="me-3">
-          <NotificationBell />
-        </div>
+      <div className="d-flex align-items-center gap-2 gap-md-3">
+        <NotificationBell />
 
         <button
           onClick={toggleTheme}
-          className="btn d-flex align-items-center justify-content-center border-0 me-3"
+          className="btn d-flex align-items-center justify-content-center border-0"
           style={{
             width: "36px",
             height: "36px",
@@ -87,13 +85,13 @@ function Navbar() {
 
         <button
           onClick={logout}
-          className="btn d-flex align-items-center border-0"
+          className="btn d-flex align-items-center border-0 p-1 p-sm-2"
           style={{ backgroundColor: "transparent", color: colors.textSecondary, fontSize: "0.9rem" }}
           onMouseEnter={(e) => (e.currentTarget.style.color = colors.textPrimary)}
           onMouseLeave={(e) => (e.currentTarget.style.color = colors.textSecondary)}
         >
-          <FiLogOut size={16} className="me-1" />
-          Logout
+          <FiLogOut size={16} className="me-0 me-sm-1" />
+          <span className="d-none d-sm-inline">Logout</span>
         </button>
       </div>
     </nav>

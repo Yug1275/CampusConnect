@@ -9,7 +9,7 @@ function HomeNavbar() {
 
   return (
     <nav
-      className="d-flex align-items-center justify-content-between flex-wrap gap-3 px-3 px-md-5 fade-in"
+      className="d-flex align-items-center justify-content-between gap-2 px-2 px-md-5 fade-in"
       style={{
         minHeight: "72px",
         backgroundColor: colors.pageBg,
@@ -26,12 +26,12 @@ function HomeNavbar() {
           style={{ height: "36px", width: "auto" }} 
           onError={(e) => { e.target.src = "/logo.png" }}
         />
-        <span style={{ fontSize: "1.3rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
+        <span className="d-none d-sm-inline" style={{ fontSize: "1.3rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
           CampusConnect
         </span>
       </div>
 
-      <div className="d-flex align-items-center flex-wrap justify-content-end" style={{ gap: "10px" }}>
+      <div className="d-flex align-items-center justify-content-end gap-2 gap-sm-3">
         <button
           onClick={toggleTheme}
           className="btn d-flex align-items-center justify-content-center border-0"
@@ -50,7 +50,7 @@ function HomeNavbar() {
 
         <Link
           to="/login"
-          className="btn cta-btn px-3 py-2"
+          className="btn cta-btn px-2 px-sm-3 py-1 py-sm-2"
           style={{
             color: colors.textPrimary,
             backgroundColor: "transparent",
@@ -63,7 +63,7 @@ function HomeNavbar() {
 
         <Link
           to="/register"
-          className="btn cta-btn text-white px-3 py-2"
+          className="btn cta-btn text-white px-2 px-sm-3 py-1 py-sm-2"
           style={{
             backgroundColor: "#2563eb",
             borderRadius: "8px",
