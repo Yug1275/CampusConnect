@@ -110,22 +110,22 @@ function Sidebar() {
       )}
 
       <aside
-        className="d-md-block"
+        className="flex-shrink-0"
         style={{
           width: "240px",
           backgroundColor: colors.sidebarBg,
           borderRight: `1px solid ${colors.border}`,
-          minHeight: "100%",
           padding: "24px 16px",
-          // Mobile: fixed off-canvas drawer; Desktop: normal in-flow sidebar
+          // Mobile: fixed off-canvas drawer; Desktop: normal in-flow flex item
           position: isDesktop ? "static" : "fixed",
           top: 0,
           left: 0,
-          height: isDesktop ? "auto" : "100vh",
+          minHeight: isDesktop ? "calc(100vh - 70px)" : "100vh",
+          height: isDesktop ? "100%" : "100vh",
           zIndex: 950,
           transform: isDesktop ? "none" : (isMobileOpen ? "translateX(0)" : "translateX(-100%)"),
           transition: "transform 0.25s ease",
-          display: isDesktop ? undefined : "block",
+          display: isDesktop ? "block" : "block",
         }}
       >
         <p

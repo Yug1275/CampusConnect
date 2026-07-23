@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { FiMessageCircle, FiX, FiSend } from "react-icons/fi";
+import { FiMessageCircle, FiX, FiSend, FiTrash2 } from "react-icons/fi";
 import { useTheme } from "../../context/ThemeContext";
 import { themeColors } from "../../styles/themeColors";
 import { askChatbot } from "../../services/chatbotService";
@@ -88,18 +88,28 @@ function ChatWidget() {
         >
           {/* Header */}
           <div
-            className="px-3 py-3 d-flex align-items-center"
+            className="px-3 py-3 d-flex align-items-center justify-content-between"
             style={{ backgroundColor: "#1e293b" }}
           >
-            <span
-              className="d-flex align-items-center justify-content-center me-2"
-              style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#2563eb" }}
+            <div className="d-flex align-items-center">
+              <span
+                className="d-flex align-items-center justify-content-center me-2"
+                style={{ width: "32px", height: "32px", borderRadius: "50%", backgroundColor: "#2563eb" }}
+              >
+                <FiMessageCircle size={16} color="#fff" />
+              </span>
+              <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.92rem" }}>
+                CampusConnect Assistant
+              </span>
+            </div>
+            <button
+              onClick={() => setMessages([GREETING])}
+              className="btn btn-sm d-flex align-items-center justify-content-center border-0 p-1"
+              style={{ color: "#94a3b8", backgroundColor: "transparent" }}
+              title="Clear Chat"
             >
-              <FiMessageCircle size={16} color="#fff" />
-            </span>
-            <span style={{ color: "#fff", fontWeight: 700, fontSize: "0.92rem" }}>
-              CampusConnect Assistant
-            </span>
+              <FiTrash2 size={18} />
+            </button>
           </div>
 
           {/* Messages */}
@@ -143,6 +153,50 @@ function ChatWidget() {
               </div>
             )}
             <div ref={bottomRef} />
+          </div>
+
+          {/* Quick Questions (FAQs) */}
+          <div 
+            className="px-2 pb-2 d-flex flex-wrap gap-2" 
+            style={{ 
+              backgroundColor: colors.cardBg, 
+              borderTop: `1px solid ${colors.border}`, 
+              paddingTop: "8px",
+              justifyContent: "center"
+            }}
+          >
+            {["Who developed you?", "Where is the library?", "How to mark attendance?", "Lost & found?"].map((q) => (
+              <button
+                key={q}
+                className="btn btn-sm"
+                style={{
+                  backgroundColor: colors.pageBg,
+                  color: colors.textPrimary,
+                  border: `1px solid ${colors.border}`,
+                  borderRadius: "12px",
+                  fontSize: "0.75rem",
+                  padding: "4px 8px"
+                }}
+                onClick={() => {
+                  // Simulate form submission behavior for quick clicks
+                  if (sending) return;
+                  setMessages((prev) => [...prev, { sender: "user", text: q }]);
+                  setSending(true);
+                  askChatbot(q).then(response => {
+                    setMessages((prev) => [...prev, { sender: "bot", text: response.data.answer }]);
+                  }).catch(err => {
+                    setMessages((prev) => [
+                      ...prev,
+                      { sender: "bot", text: "Sorry, something went wrong. Please try again." },
+                    ]);
+                  }).finally(() => {
+                    setSending(false);
+                  });
+                }}
+              >
+                {q}
+              </button>
+            ))}
           </div>
 
           {/* Input */}

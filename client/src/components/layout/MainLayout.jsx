@@ -21,7 +21,7 @@ function MainLayout({ children }) {
   return (
     <div className="d-flex flex-column" style={{ minHeight: "100vh", backgroundColor: colors.pageBg }}>
       <Navbar />
-      <div className="d-flex flex-grow-1">
+      <div className="d-flex flex-grow-1 align-items-stretch">
         <Sidebar />
         <main className="flex-grow-1 p-4 p-md-5">{children}</main>
       </div>
