@@ -12,6 +12,7 @@ import BarChartCard from "../../components/dashboard/BarChartCard";
 import { getAdminSummary } from "../../services/adminService";
 import { getEvents } from "../../services/eventService";
 import { getAttendanceTrend, getStudentsPerDepartment } from "../../services/analyticsService";
+import { getAdminRecentActivities } from "../../services/dashboardService";
 
 function AdminDashboard() {
   const { user } = useAuth();
@@ -27,6 +28,9 @@ function AdminDashboard() {
   const [attendanceTrend, setAttendanceTrend] = useState([]);
   const [studentsPerDept, setStudentsPerDept] = useState([]);
   const [loadingCharts, setLoadingCharts] = useState(true);
+
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [loadingActivities, setLoadingActivities] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -75,12 +79,19 @@ function AdminDashboard() {
     fetchCharts();
   }, []);
 
-  const recentActivities = [
-    { primary: "New student registered - Riya Shah", secondary: "5 minutes ago" },
-    { primary: "Faculty added to Computer Science dept.", secondary: "1 hour ago" },
-    { primary: "New event created: Annual Sports Meet", secondary: "3 hours ago" },
-    { primary: "Announcement posted by Admin", secondary: "Yesterday" },
-  ];
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      try {
+        const response = await getAdminRecentActivities();
+        setRecentActivities(response.data.activities || []);
+      } catch (err) {
+        setRecentActivities([]);
+      } finally {
+        setLoadingActivities(false);
+      }
+    };
+    fetchRecentActivities();
+  }, []);
 
   const statValue = (value) => {
     if (loadingSummary) return "…";
@@ -179,7 +190,11 @@ function AdminDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12">
-          <ListCard title="Recent Activities" items={recentActivities} />
+          <ListCard
+            title="Recent Activities"
+            items={loadingActivities ? [] : recentActivities}
+            emptyText={loadingActivities ? "Loading activities..." : "No recent activities yet."}
+          />
         </div>
       </div>
     </MainLayout>

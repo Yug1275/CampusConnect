@@ -9,6 +9,7 @@ import ListCard from "../../components/dashboard/ListCard";
 import { getFacultyAttendanceSummary } from "../../services/attendanceService";
 import { getEvents } from "../../services/eventService";
 import { getAnnouncements } from "../../services/announcementService";
+import { getFacultyDashboardOverview } from "../../services/dashboardService";
 
 const timeAgo = (isoString) => {
   const diffMs = new Date() - new Date(isoString);
@@ -36,6 +37,10 @@ function FacultyDashboard() {
 
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
+
+  const [todaysClasses, setTodaysClasses] = useState([]);
+  const [pendingTasks, setPendingTasks] = useState([]);
+  const [loadingOverview, setLoadingOverview] = useState(true);
 
   useEffect(() => {
     const fetchSummary = async () => {
@@ -96,19 +101,21 @@ function FacultyDashboard() {
     fetchAnnouncements();
   }, []);
 
-  // Static placeholders - Today's Classes requires a Timetable module (not yet built),
-  // Pending Tasks requires a Tasks module from a later phase.
-  const todaysClasses = [
-    { primary: "Data Structures - CSE 2A", secondary: "9:00 AM - 10:00 AM, Room 204" },
-    { primary: "Database Management Systems - CSE 2B", secondary: "11:00 AM - 12:00 PM, Room 110" },
-    { primary: "Computer Networks - CSE 3A", secondary: "2:00 PM - 3:00 PM, Lab 3" },
-  ];
-
-  const pendingTasks = [
-    { primary: "Grade Database Assignment 3", secondary: "Due Oct 15", tag: "Pending" },
-    { primary: "Upload lecture notes - Networks", secondary: "Due Oct 16", tag: "Pending" },
-    { primary: "Review feedback submissions", secondary: "Due Oct 18", tag: "Pending" },
-  ];
+  useEffect(() => {
+    const fetchDashboardOverview = async () => {
+      try {
+        const response = await getFacultyDashboardOverview();
+        setTodaysClasses(response.data.overview?.todaysClasses || []);
+        setPendingTasks(response.data.overview?.pendingTasks || []);
+      } catch (err) {
+        setTodaysClasses([]);
+        setPendingTasks([]);
+      } finally {
+        setLoadingOverview(false);
+      }
+    };
+    fetchDashboardOverview();
+  }, []);
 
   const attendanceDisplay = loadingAttendance
     ? "…"
@@ -129,11 +136,10 @@ function FacultyDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - requires a Timetable module (not yet built) */}
           <StatCard
             icon={<FiBookOpen size={20} />}
             label="Today's Classes"
-            value={todaysClasses.length}
+            value={loadingOverview ? "..." : todaysClasses.length}
             accentColor="#9333ea"
           />
         </div>
@@ -146,11 +152,10 @@ function FacultyDashboard() {
           />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - no Tasks module exists yet */}
           <StatCard
             icon={<FiClipboard size={20} />}
             label="Pending Tasks"
-            value={pendingTasks.length}
+            value={loadingOverview ? "..." : pendingTasks.length}
             accentColor="#dc2626"
           />
         </div>
@@ -166,10 +171,18 @@ function FacultyDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
-          <ListCard title="Today's Classes" items={todaysClasses} />
+          <ListCard
+            title="Today's Classes"
+            items={loadingOverview ? [] : todaysClasses}
+            emptyText={loadingOverview ? "Loading today's classes..." : "No classes opened today yet."}
+          />
         </div>
         <div className="col-12 col-lg-6">
-          <ListCard title="Pending Tasks" items={pendingTasks} />
+          <ListCard
+            title="Pending Tasks"
+            items={loadingOverview ? [] : pendingTasks}
+            emptyText={loadingOverview ? "Loading tasks..." : "No pending tasks right now."}
+          />
         </div>
       </div>
 

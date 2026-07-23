@@ -27,13 +27,21 @@ const feedbackRoutes = require("./routes/feedbackRoutes");
 const lostFoundRoutes = require("./routes/lostFoundRoutes");
 const chatbotRoutes = require("./routes/chatbotRoutes");
 const badgeRoutes = require("./routes/badgeRoutes");
+const dashboardRoutes = require("./routes/dashboardRoutes");
 
 connectDB();
 
 const app = express();
 
+// CORS: wide open in development for convenience; restricted to the deployed
+// frontend's exact origin in production, set via CLIENT_URL env var.
+const corsOptions =
+  process.env.NODE_ENV === "production"
+    ? { origin: process.env.CLIENT_URL, credentials: true }
+    : { origin: true, credentials: true };
+
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(requestLogger);
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -42,6 +50,7 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "CampusConnect API is running",
+    environment: process.env.NODE_ENV || "development",
     timestamp: new Date().toISOString(),
   });
 });
@@ -67,6 +76,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/lostfound", lostFoundRoutes);
 app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/badges", badgeRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.use(notFound);
 app.use(errorHandler);
@@ -74,5 +84,5 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV || "development"} mode`);
 });

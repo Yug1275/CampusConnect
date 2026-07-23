@@ -4,7 +4,6 @@ import {
   FiCalendar,
   FiBookOpen,
   FiAward,
-  FiUsers,
   FiStar,
   FiHeart,
 } from "react-icons/fi";
@@ -16,9 +15,9 @@ import StatCard from "../../components/dashboard/StatCard";
 import ListCard from "../../components/dashboard/ListCard";
 import { getMyAttendanceSummary } from "../../services/attendanceService";
 import { getMyRegistrations } from "../../services/eventService";
-import { getMyClubs } from "../../services/clubService";
 import { getAnnouncements } from "../../services/announcementService";
-import { getMyBadges, checkAndAwardBadges } from "../../services/badgeService";
+import { checkAndAwardBadges } from "../../services/badgeService";
+import { getStudentDashboardOverview } from "../../services/dashboardService";
 
 // Same relative-time formatter used in the Announcement Feed (Task 3)
 const timeAgo = (isoString) => {
@@ -60,21 +59,21 @@ function StudentDashboard() {
   const [upcomingEventsList, setUpcomingEventsList] = useState([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
 
-  const [clubCount, setClubCount] = useState(null);
-  const [loadingClubs, setLoadingClubs] = useState(true);
-
   const [recentAnnouncements, setRecentAnnouncements] = useState([]);
   const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
   const [badges, setBadges] = useState([]);
   const [loadingBadges, setLoadingBadges] = useState(true);
 
+  const [todaysClasses, setTodaysClasses] = useState([]);
+  const [loadingTodaysClasses, setLoadingTodaysClasses] = useState(true);
+
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
         const response = await getMyAttendanceSummary();
         setAttendancePercentage(response.data.overall.percentage);
-      } catch (err) {
+      } catch {
         setAttendancePercentage(null);
       } finally {
         setLoadingAttendance(false);
@@ -103,27 +102,13 @@ function StudentDashboard() {
             tag: "Registered",
           }));
         setUpcomingEventsList(upcoming);
-      } catch (err) {
+      } catch {
         setUpcomingEventsList([]);
       } finally {
         setLoadingEvents(false);
       }
     };
     fetchEvents();
-  }, []);
-
-  useEffect(() => {
-    const fetchClubs = async () => {
-      try {
-        const response = await getMyClubs();
-        setClubCount(response.data.count);
-      } catch (err) {
-        setClubCount(null);
-      } finally {
-        setLoadingClubs(false);
-      }
-    };
-    fetchClubs();
   }, []);
 
   useEffect(() => {
@@ -135,7 +120,7 @@ function StudentDashboard() {
           secondary: `Posted by ${a.createdBy?.name || "Unknown"} · ${timeAgo(a.createdAt)}`,
         }));
         setRecentAnnouncements(recent);
-      } catch (err) {
+      } catch {
         setRecentAnnouncements([]);
       } finally {
         setLoadingAnnouncements(false);
@@ -151,7 +136,7 @@ function StudentDashboard() {
       try {
         const response = await checkAndAwardBadges();
         setBadges(response.data.badges);
-      } catch (err) {
+      } catch {
         setBadges([]);
       } finally {
         setLoadingBadges(false);
@@ -160,12 +145,19 @@ function StudentDashboard() {
     fetchBadges();
   }, []);
 
-  // Static placeholder - Today's Classes requires a Timetable module (not built in this project)
-  const todaysClasses = [
-    { primary: "Data Structures", secondary: "9:00 AM - 10:00 AM, Room 204" },
-    { primary: "Database Management Systems", secondary: "10:15 AM - 11:15 AM, Room 110" },
-    { primary: "Computer Networks", secondary: "1:00 PM - 2:00 PM, Lab 3" },
-  ];
+  useEffect(() => {
+    const fetchDashboardOverview = async () => {
+      try {
+        const response = await getStudentDashboardOverview();
+        setTodaysClasses(response.data.overview?.todaysClasses || []);
+      } catch {
+        setTodaysClasses([]);
+      } finally {
+        setLoadingTodaysClasses(false);
+      }
+    };
+    fetchDashboardOverview();
+  }, []);
 
   const attendanceDisplay = loadingAttendance
     ? "…"
@@ -176,7 +168,6 @@ function StudentDashboard() {
     attendancePercentage !== null && attendancePercentage < 75 ? "#f59e0b" : "#16a34a";
 
   const eventsDisplay = loadingEvents ? "…" : upcomingEventsList.length;
-  const clubsDisplay = loadingClubs ? "…" : clubCount !== null ? clubCount : "—";
   const badgesDisplay = loadingBadges ? "…" : badges.length;
 
   return (
@@ -196,8 +187,12 @@ function StudentDashboard() {
           <StatCard icon={<FiCalendar size={20} />} label="Upcoming Events" value={eventsDisplay} accentColor="#2563eb" />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
-          {/* Static placeholder - requires a Timetable module (not built) */}
-          <StatCard icon={<FiBookOpen size={20} />} label="Today's Classes" value={todaysClasses.length} accentColor="#9333ea" />
+          <StatCard
+            icon={<FiBookOpen size={20} />}
+            label="Today's Classes"
+            value={loadingTodaysClasses ? "..." : todaysClasses.length}
+            accentColor="#9333ea"
+          />
         </div>
         <div className="col-12 col-sm-6 col-lg-3">
           {/* Now wired to real data - Task 5/6's badge system */}
@@ -207,20 +202,15 @@ function StudentDashboard() {
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-lg-6">
-          <ListCard title="Today's Classes" items={todaysClasses} />
-        </div>
-        <div className="col-12 col-lg-6">
           <ListCard
-            title="Upcoming Events"
-            items={upcomingEventsList}
-            emptyText="You haven't registered for any upcoming events."
+            title="Today's Classes"
+            items={loadingTodaysClasses ? [] : todaysClasses}
+            emptyText={
+              loadingTodaysClasses
+                ? "Loading today's classes..."
+                : "No attendance sessions are open for your classes today."
+            }
           />
-        </div>
-      </div>
-
-      <div className="row g-3 mb-4">
-        <div className="col-12 col-lg-6">
-          <ListCard title="Today's Classes" items={todaysClasses} />
         </div>
 
         <div className="col-12 col-lg-6">

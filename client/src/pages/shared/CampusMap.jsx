@@ -229,7 +229,6 @@ function CampusMap() {
                     zoom={16}
                     style={{ height: isMobile ? "420px" : "600px", width: "100%" }}
                   >
-                >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
