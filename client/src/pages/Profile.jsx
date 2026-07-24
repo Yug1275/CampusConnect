@@ -186,7 +186,7 @@ function Profile() {
             >
               {profileImage ? (
                 <img
-                  src={`${API_BASE}${profileImage}`}
+                  src={profileImage.startsWith("http") ? profileImage : `${API_BASE}${profileImage}`}
                   alt="Profile"
                   style={{
                     width: "120px",

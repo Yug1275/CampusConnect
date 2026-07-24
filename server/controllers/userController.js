@@ -80,8 +80,8 @@ const updateProfilePicture = async (req, res, next) => {
       throw new Error("User not found");
     }
 
-    // Store relative path - frontend will prefix with the backend base URL
-    user.profileImage = `/uploads/${req.file.filename}`;
+    // Store absolute URL from Cloudinary
+    user.profileImage = req.file.path;
     await user.save();
 
     res.status(200).json({

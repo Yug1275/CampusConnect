@@ -1,17 +1,21 @@
 const multer = require("multer");
-const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+const cloudinary = require("cloudinary").v2;
 
-// Configure where and how uploaded files are stored on disk
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    // Unique filename: userId-timestamp.extension
-    // Prevents filename collisions if multiple users upload at the same time
-    const ext = path.extname(file.originalname);
-    const uniqueName = `${req.user._id}-${Date.now()}${ext}`;
-    cb(null, uniqueName);
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configure where and how uploaded files are stored on Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "campus_connect_profiles",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
+    public_id: (req, file) => `${req.user._id}-${Date.now()}`,
   },
 });
 

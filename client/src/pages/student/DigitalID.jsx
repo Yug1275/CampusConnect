@@ -160,7 +160,7 @@ function DigitalID() {
             <div className="d-flex align-items-center mb-3">
               {profile?.profileImage ? (
                   <img
-                  src={`${API_BASE}${profile.profileImage}`}
+                  src={profile.profileImage.startsWith("http") ? profile.profileImage : `${API_BASE}${profile.profileImage}`}
                   alt={user?.name}
                   crossOrigin="anonymous"
                   style={{
