@@ -89,11 +89,17 @@ CampusConnect is a full-stack university management system that unifies authenti
 
 ## 🏗️ System Architecture
 
-<p align="center">
+<details>
+<summary>Click to expand the complete system architecture diagram</summary>
+  <p align="center">
   <img src="./docs/images/architecture.jpg" alt="CampusConnect Architecture Diagram" width="100%">
 </p>
+</details>
 
 ## 🔄 Complete Application Sequence Diagram
+
+<details>
+<summary>Click to expand the complete sequence diagram</summary>
 
 ```mermaid
 sequenceDiagram
@@ -358,17 +364,20 @@ sequenceDiagram
     Frontend->>Frontend: Clear localStorage (token)
     Frontend->>Frontend: Reset AuthContext to null
     Frontend-->>User: Redirect to Login page
-```
+
+ ```
+</details>
+
+## 🏢 Three-Tier MERN Architecture
 
 CampusConnect follows a classic three-tier MERN architecture:
 
-```text
-React (Vite) ── Axios ──> Express.js REST API ── Mongoose ──> MongoDB Atlas
-      │                           │
-  Leaflet.js                  JWT Middleware
-  Chart.js               Role-Based Access Control
-  QR Scan/Gen              Multer (File Uploads)
-```
+<details>
+<summary>Click to expand the complete three-tier MERN architecture</summary>
+  <p align="center">
+  <img src="./docs/images/three-tier.png" alt="CampusConnect three tier Architecture Diagram" width="100%">
+</p>
+</details>
 
 Every protected route flows through a shared `protect` (JWT verification) and `authorize(...roles)` middleware chain, applied consistently across all 20+ resource modules.
 
