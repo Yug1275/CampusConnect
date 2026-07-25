@@ -2,6 +2,13 @@
 
 # CampusConnect
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./client/public/logo-dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="./client/public/logo-light.png">
+  <img src="./client/public/logo-light.png" alt="CampusConnect Logo" width="120" />
+</picture>
+
+
 **One Platform for Students, Faculty & Campus Life**
 
 A production-grade, full-stack University Management Portal built using the MERN Stack — combining authentication, academic management, attendance, events, campus navigation, analytics, and an AI-style FAQ assistant into a single, unified platform.
@@ -11,12 +18,15 @@ A production-grade, full-stack University Management Portal built using the MERN
 [![React](https://img.shields.io/badge/React-Frontend-blue)]()
 [![Node.js](https://img.shields.io/badge/Node.js-Runtime-brightgreen)]()
 [![License](https://img.shields.io/badge/License-MIT-yellow)]()
+[![Live Demo](https://img.shields.io/badge/🌐%20Live%20Demo-campusconnectpdeu.vercel.app-blue?style=flat)](https://campusconnectpdeu.vercel.app/)
 
 </div>
 
 CampusConnect is a full-stack university management system that unifies authentication, academics, attendance, events, clubs, campus navigation, analytics, feedback, and lost & found into a single, role-aware platform for students, faculty, and administrators — built end-to-end across 10 structured development phases.
 
 ---
+
+
 
 # 📖 Table of Contents
 
@@ -77,9 +87,278 @@ CampusConnect is a full-stack university management system that unifies authenti
 
 # 🏗️ Architecture
 
-> Architecture diagram — *coming soon*
+## 🏗️ System Architecture
 
-> Sequence diagram (Auth + Attendance flow) — *coming soon*
+<p align="center">
+  <img src="./docs/images/architecture.jpg" alt="CampusConnect Architecture Diagram" width="100%">
+</p>
+
+## 🔄 Complete Application Sequence Diagram
+
+```mermaid
+sequenceDiagram
+    autonumber
+
+    actor User
+    participant Browser
+    participant Frontend as React Frontend
+    participant API as Express REST API
+    participant Auth as Auth Service
+    participant Modules as App Modules
+    participant DB as MongoDB Atlas
+
+    Note over User, DB: ── REGISTRATION & AUTHENTICATION ──
+
+    User->>Browser: Open CampusConnect
+    Browser->>Frontend: Load React App (Vite)
+    Frontend-->>User: Display Login / Register Page
+
+    User->>Frontend: Submit Registration Form
+    activate Frontend
+    Frontend->>API: POST /api/auth/register
+    activate API
+    API->>Auth: Validate input & hash password (bcryptjs)
+    Auth->>DB: Create User document
+    DB-->>Auth: User saved
+    Auth-->>API: Return JWT Token + user object
+    API-->>Frontend: 201 Created { token, user }
+    deactivate API
+    Frontend->>Frontend: Store JWT in localStorage (AuthContext)
+    deactivate Frontend
+
+    Note over User, Frontend: Alternatively — Google OAuth Flow
+
+    User->>Frontend: Click "Continue with Google"
+    Frontend->>API: POST /api/auth/google { credential }
+    activate API
+    API->>Auth: Verify Google ID Token (google-auth-library)
+    Auth->>DB: FindOrCreate User by email
+    DB-->>Auth: User document
+    Auth-->>API: JWT Token + user
+    API-->>Frontend: 200 OK { token, user }
+    deactivate API
+
+    Note over User, DB: ── LOGIN & ROLE-BASED ROUTING ──
+
+    User->>Frontend: Submit Login Credentials
+    Frontend->>API: POST /api/auth/login
+    activate API
+    API->>Auth: Find user, matchPassword()
+    Auth->>DB: findOne({ email })
+    DB-->>Auth: User document
+    Auth->>Auth: bcrypt.compare(password, hash)
+    Auth-->>API: JWT Token + { role, name, _id }
+    API-->>Frontend: 200 OK { token, user }
+    deactivate API
+    Frontend->>Frontend: Set AuthContext state (user, token, role)
+
+    alt role === student
+        Frontend-->>User: Render Student Dashboard
+    else role === faculty
+        Frontend-->>User: Render Faculty Dashboard
+    else role === admin
+        Frontend-->>User: Render Admin Dashboard
+    end
+
+    Note over User, DB: ── STUDENT WORKFLOWS ──
+
+    User->>Frontend: View Attendance History
+    Frontend->>API: GET /api/attendance/my (Bearer JWT)
+    activate API
+    API->>Auth: Verify JWT Middleware
+    API->>Modules: Attendance Controller
+    Modules->>DB: Query Attendance by student + subject
+    DB-->>Modules: Attendance records
+    Modules-->>API: Aggregated stats per subject
+    API-->>Frontend: 200 OK { records, percentage }
+    deactivate API
+    Frontend-->>User: Display attendance chart (Chart.js)
+
+    User->>Frontend: Scan QR Code for Attendance
+    Frontend->>Frontend: html5-qrcode decodes token
+    Frontend->>API: POST /api/attendance/qr/scan { token }
+    activate API
+    API->>Auth: Verify JWT (student role)
+    API->>Modules: AttendanceSession Controller
+    Modules->>DB: Find session by token, check expiry
+    Modules->>DB: Verify student dept + semester eligibility
+    Modules->>DB: Upsert Attendance { status: present }
+    DB-->>Modules: Record saved
+    Modules-->>API: Success
+    API-->>Frontend: 200 OK { message: Attendance marked present }
+    deactivate API
+    Frontend-->>User: Show success confirmation
+
+    User->>Frontend: Register for Event
+    Frontend->>API: POST /api/events/:id/register
+    activate API
+    API->>Modules: EventRegistration Controller
+    Modules->>DB: Create EventRegistration document
+    Modules->>DB: Create Notification for student
+    DB-->>Modules: Saved
+    Modules-->>API: Registered + ticket token (QR)
+    API-->>Frontend: 200 OK { qrToken, event }
+    deactivate API
+    Frontend-->>User: Display event ticket with QR code
+
+    User->>Frontend: Join a Club
+    Frontend->>API: POST /api/clubs/:id/join
+    activate API
+    API->>Modules: ClubMembership Controller
+    Modules->>DB: Create ClubMembership document
+    DB-->>Modules: Membership saved
+    Modules-->>API: Success
+    API-->>Frontend: 200 OK
+    deactivate API
+
+    User->>Frontend: View Notifications
+    Frontend->>API: GET /api/notifications
+    activate API
+    API->>Modules: Notification Controller
+    Modules->>DB: Find unread notifications by recipient
+    DB-->>Modules: Notification documents
+    Modules-->>API: Notification list + unread count
+    API-->>Frontend: 200 OK { notifications }
+    deactivate API
+    Frontend-->>User: Display notification panel
+
+    User->>Frontend: Open FAQ Chatbot
+    Frontend->>API: POST /api/chatbot/query { query }
+    activate API
+    API->>Modules: Chatbot Controller
+    Modules->>DB: Search ChatbotFAQ by keyword match
+    DB-->>Modules: Matching FAQ entries
+    Modules-->>API: Best match answer
+    API-->>Frontend: 200 OK { answer }
+    deactivate API
+    Frontend-->>User: Display FAQ response
+
+    User->>Frontend: Download Digital Student ID
+    Frontend->>Frontend: Render ID card (html2canvas + jsPDF)
+    Frontend-->>User: PDF download triggered in browser
+
+    User->>Frontend: Report Lost & Found Item
+    Frontend->>API: POST /api/lost-found (with image)
+    activate API
+    API->>Auth: Verify JWT + Multer upload middleware
+    API->>Modules: LostFound Controller
+    Modules->>Modules: Upload image to Cloudinary
+    Modules->>DB: Create LostFoundItem with imageUrl
+    DB-->>Modules: Saved
+    Modules-->>API: 201 Created
+    API-->>Frontend: Success + item details
+    deactivate API
+
+    Note over User, DB: ── FACULTY WORKFLOWS ──
+
+    User->>Frontend: Generate QR Attendance Session
+    Frontend->>API: POST /api/attendance/qr/generate { subject, date }
+    activate API
+    API->>Auth: Verify JWT (faculty or admin role)
+    API->>Modules: AttendanceSession Controller
+    Modules->>Modules: crypto.randomBytes(16) sessionToken
+    Modules->>DB: Create AttendanceSession { token, expiresAt: +5min }
+    DB-->>Modules: Session saved
+    Modules-->>API: { sessionToken, expiresAt }
+    API-->>Frontend: 201 Created { session }
+    deactivate API
+    Frontend-->>User: Display QR code for class
+
+    User->>Frontend: Mark Manual Attendance
+    Frontend->>API: POST /api/attendance/mark { subject, date, records }
+    activate API
+    API->>Modules: Attendance Controller
+    Modules->>DB: bulkWrite upsert Attendance records
+    DB-->>Modules: Matched + upserted counts
+    Modules-->>API: 200 OK { summary }
+    API-->>Frontend: Success response
+    deactivate API
+    Note over Modules, DB: Async fire-and-forget — notify absent students
+    Modules->>DB: Create Notification for each absent student
+
+    User->>Frontend: Create Announcement
+    Frontend->>API: POST /api/announcements { title, body, targetRole }
+    activate API
+    API->>Auth: Verify JWT (faculty or admin)
+    API->>Modules: Announcement Controller
+    Modules->>DB: Create Announcement document
+    Modules->>DB: Batch create Notifications for target role
+    DB-->>Modules: All saved
+    Modules-->>API: 201 Created
+    API-->>Frontend: Success
+    deactivate API
+
+    Note over User, DB: ── ADMIN WORKFLOWS ──
+
+    User->>Frontend: Manage Students / Faculty
+    Frontend->>API: GET /api/admin/students or /api/admin/faculty
+    activate API
+    API->>Auth: Verify JWT (admin role only)
+    API->>Modules: Student / Faculty Controller
+    Modules->>DB: Paginated User query by role
+    DB-->>Modules: User list
+    Modules-->>API: 200 OK { users }
+    API-->>Frontend: User records
+    deactivate API
+    Frontend-->>User: Render management table with CRUD actions
+
+    User->>Frontend: View Analytics Dashboard
+    Frontend->>API: GET /api/analytics/attendance-trend
+    activate API
+    API->>Auth: Verify JWT (admin)
+    API->>Modules: Analytics Controller
+    Modules->>DB: Attendance.aggregate() 14-day trend
+    DB-->>Modules: Grouped daily percentages
+    Modules-->>API: { trend }
+    API-->>Frontend: 200 OK { trend }
+    deactivate API
+    Frontend->>API: GET /api/analytics/students-per-department
+    API->>DB: User.aggregate() group by department
+    DB-->>API: Department counts
+    API-->>Frontend: 200 OK { data }
+    Frontend-->>User: Render analytics charts (Chart.js)
+
+    User->>Frontend: Manage Campus Locations
+    Frontend->>API: CRUD /api/locations
+    API->>Auth: Verify JWT (admin)
+    API->>DB: Create / Update Location { name, lat, lng, category }
+    DB-->>API: Location saved
+    API-->>Frontend: Updated location list
+    Frontend-->>User: Render map pins (Leaflet)
+
+    Note over User, DB: ── GLOBAL FEATURES (ALL ROLES) ──
+
+    User->>Frontend: Global Search
+    Frontend->>API: GET /api/search?q=term
+    activate API
+    API->>Modules: Search Controller
+    Modules->>DB: Parallel query Users + Events + Announcements + Clubs
+    DB-->>Modules: Combined results
+    Modules-->>API: Ranked results list
+    API-->>Frontend: 200 OK { results }
+    deactivate API
+    Frontend-->>User: Display search results
+
+    User->>Frontend: Update Profile / Upload Photo
+    Frontend->>API: PUT /api/users/profile (multipart/form-data)
+    activate API
+    API->>Auth: Multer + Cloudinary middleware
+    API->>Modules: Upload to Cloudinary get imageUrl
+    Modules->>DB: Update User.profileImage field
+    DB-->>Modules: Updated
+    Modules-->>API: 200 OK { user }
+    API-->>Frontend: Updated user object
+    deactivate API
+    Frontend->>Frontend: Update AuthContext state
+    Frontend-->>User: Profile picture updated
+
+    Note over User, DB: ── SESSION END ──
+
+    User->>Frontend: Click Logout
+    Frontend->>Frontend: Clear localStorage (token)
+    Frontend->>Frontend: Reset AuthContext to null
+    Frontend-->>User: Redirect to Login page
+```
 
 CampusConnect follows a classic three-tier MERN architecture:
 
