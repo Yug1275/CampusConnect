@@ -1,4 +1,5 @@
 import { FiLogOut, FiUser, FiSun, FiMoon, FiMenu } from "react-icons/fi";
+import { Link } from "react-router-dom";
 import { useSidebar } from "../../context/SidebarContext";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -30,7 +31,7 @@ function Navbar() {
           <FiMenu size={20} />
         </button>
 
-        <div className="d-flex align-items-center" style={{ gap: "10px" }}>
+        <Link to="/dashboard" className="d-flex align-items-center text-decoration-none" style={{ gap: "10px" }}>
           <img 
             src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"} 
             alt="CampusConnect Logo" 
@@ -40,7 +41,7 @@ function Navbar() {
           <span className="d-none d-sm-inline" style={{ fontSize: "1.25rem", fontWeight: 700, color: colors.textPrimary, letterSpacing: "0.3px" }}>
             CampusConnect
           </span>
-        </div>
+        </Link>
 
         <GlobalSearch />
       </div>

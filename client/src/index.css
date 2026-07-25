@@ -61,3 +61,12 @@ textarea {
     width: calc(100vw - 24px);
   }
 }
+
+/* Hide scrollbar for sidebar */
+.sidebar-scroll {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.sidebar-scroll::-webkit-scrollbar {
+  display: none;
+}

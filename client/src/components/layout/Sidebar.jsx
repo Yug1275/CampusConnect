@@ -55,8 +55,7 @@ function Sidebar() {
       { to: "/admin/subjects", label: "Subjects", icon: <FiBookOpen size={18} /> },
       { to: "/admin/clubs", label: "Clubs", icon: <FiAward size={18} /> },
       { to: "/admin/locations", label: "Locations", icon: <FiMapPin size={18} /> },
-      { to: "/admin/analytics", label: "Analytics", icon: <FiPieChart size={18} /> },
-      { to: "/admin/lost-found/verify", label: "Verify Claims", icon: <FiCheckCircle size={18} /> },
+      { to: "/admin/analytics", label: "Analytics", icon: <FiPieChart size={18} /> }
     );
   }
 
@@ -104,13 +103,13 @@ function Sidebar() {
             position: "fixed",
             inset: 0,
             backgroundColor: "rgba(0,0,0,0.5)",
-            zIndex: 900,
+            zIndex: 1900,
           }}
         />
       )}
 
       <aside
-        className="flex-shrink-0"
+        className="flex-shrink-0 sidebar-scroll"
         style={{
           width: "240px",
           backgroundColor: colors.sidebarBg,
@@ -122,7 +121,8 @@ function Sidebar() {
           left: 0,
           minHeight: isDesktop ? "calc(100vh - 70px)" : "100vh",
           height: isDesktop ? "100%" : "100vh",
-          zIndex: 950,
+          overflowY: "auto",
+          zIndex: 2000,
           transform: isDesktop ? "none" : (isMobileOpen ? "translateX(0)" : "translateX(-100%)"),
           transition: "transform 0.25s ease",
           display: isDesktop ? "block" : "block",
