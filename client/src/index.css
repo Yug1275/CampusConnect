@@ -44,3 +44,20 @@ textarea {
 ::-moz-placeholder {
   color: #94a3b8 !important;
 }
+
+/* Notification dropdown responsiveness */
+.notification-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: min(340px, calc(100vw - 24px));
+}
+
+@media (max-width: 576px) {
+  .notification-dropdown {
+    position: fixed;
+    top: 70px;
+    right: 12px;
+    width: calc(100vw - 24px);
+  }
+}
